@@ -89,9 +89,11 @@ class MasterWindow:
     def populate_master_dir_listbox(self, osnav):
         self.dir_listbox_labelframe = self.create_dir_listbox_labelframe(self.master)
         self.dir_listbox_frame = self.create_dir_listbox_frame(self.dir_listbox_labelframe)
-        self.dir_listbox_scrollbar = self.create_dir_scrollbar(self.dir_listbox_frame)
-        self.dir_listbox = self.create_dir_listbox(self.dir_listbox_frame, self.dir_listbox_scrollbar, self.osnav, self.dir_listbox_event_handler_overseer)
-        self.link_dir_scrollbar_to_listbox(self.dir_listbox_frame, self.dir_listbox_scrollbar, self.dir_listbox)
+        self.dir_listbox_y_scrollbar = self.create_dir_y_scrollbar(self.dir_listbox_frame)
+        self.dir_listbox_x_scrollbar = self.create_dir_x_scrollbar(self.dir_listbox_frame)
+        self.dir_listbox = self.create_dir_listbox(self.dir_listbox_frame, self.dir_listbox_y_scrollbar, self.dir_listbox_x_scrollbar, self.osnav, self.dir_listbox_event_handler_overseer)
+        self.link_dir_y_scrollbar_to_listbox(self.dir_listbox_frame, self.dir_listbox_y_scrollbar, self.dir_listbox)
+        self.link_dir_x_scrollbar_to_listbox(self.dir_listbox_frame, self.dir_listbox_x_scrollbar, self.dir_listbox)
         self.dir_active_intvar = self.create_dir_active_intvar(self.dir_listbox.curselection()[0])
 
 
@@ -106,10 +108,16 @@ class MasterWindow:
         return dir_listbox_frame
 
 
-    def create_dir_scrollbar(self, frame):
-        dir_listbox_scrollbar = tk.Scrollbar(frame)
-        dir_listbox_scrollbar.grid(column=1, row=1, sticky=tk.NSEW)
-        return dir_listbox_scrollbar
+    def create_dir_y_scrollbar(self, frame):
+        dir_listbox_yscrollbar = tk.Scrollbar(frame)
+        dir_listbox_yscrollbar.grid(column=1, row=1, sticky=tk.NSEW)
+        return dir_listbox_yscrollbar
+
+    
+    def create_dir_x_scrollbar(self, frame):
+        dir_listbox_x_scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL)
+        dir_listbox_x_scrollbar.grid(column=0, row=2, columnspan=2, sticky=tk.EW)
+        return dir_listbox_x_scrollbar
 
 
     def dir_listbox_event_handler_overseer(self, event_obj):
@@ -171,8 +179,8 @@ class MasterWindow:
         return (dir_listbox, selection_index)
         
 
-    def create_dir_listbox(self, frame, scrollbar, osnav, event_func):
-        dir_listbox = tk.Listbox(frame, yscrollcommand=scrollbar.set)
+    def create_dir_listbox(self, frame, y_scrollbar, x_scrollbar, osnav, event_func):
+        dir_listbox = tk.Listbox(frame, yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set)
         dir_listbox = self.get_dir_listbox_content(dir_listbox, osnav)
         dir_listbox.grid(column=0, row=1, sticky=tk.W)
         keypress_event_list = ['<KeyPress-Return>', '<KeyPress-BackSpace>', '<KeyPress-Up>', '<KeyPress-Down>']
@@ -193,10 +201,14 @@ class MasterWindow:
         return dir_listbox
 
 
-    def link_dir_scrollbar_to_listbox(self, frame, scrollbar, listbox):
-        scrollbar.config(command=listbox.yview)
+    def link_dir_y_scrollbar_to_listbox(self, frame, y_scrollbar, listbox):
+        y_scrollbar.config(command=listbox.yview)
         frame.grid(column=3, row=1, rowspan=2)
 
+
+    def link_dir_x_scrollbar_to_listbox(self, frame, x_scrollbar, listbox):
+        x_scrollbar.config(command=listbox.xview)
+        frame.grid(column=0, row=2, columnspan=2)
     
     def create_dir_active_intvar(self, active_int):
         dir_active_intvar = tk.IntVar()
