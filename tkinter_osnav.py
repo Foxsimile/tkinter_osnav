@@ -231,6 +231,10 @@ class OSNavigator:
         self.dir_changelog = []
     
 
+    def get_available_drives(self):
+        available_drives = ['{0}:'.format(x) for x in string.ascii_uppercase if os.path.exists('{0}:'.format(x))]
+        
+
     def get_base_dir(self):
         base_dir = os.getcwd()[:os.getcwd().find('\\') + 1]
         os.chdir(base_dir)
