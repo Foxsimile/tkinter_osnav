@@ -225,15 +225,17 @@ class MasterWindow:
 
 class OSNavigator:
     def __init__(self):
+        self.drives = self.get_drives()
         self.base_dir = self.get_base_dir()
         self.cwd = self.getcwd() 
         self.cwd_scan = self.update_cwd_scan()
         self.dir_changelog = []
     
 
-    def get_available_drives(self):
+    def get_drives(self):
         available_drives = ['{0}:'.format(x) for x in string.ascii_uppercase if os.path.exists('{0}:'.format(x))]
-        
+        return available_drives
+
 
     def get_base_dir(self):
         base_dir = os.getcwd()[:os.getcwd().find('\\') + 1]
