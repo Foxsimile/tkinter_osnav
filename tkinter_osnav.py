@@ -1,6 +1,6 @@
 import tkinter as tk, tkinter.font as tk_font
 from tkinter import ttk
-import os
+import os, string
 
 class MasterWindow:
     def __init__(self):
