@@ -1,6 +1,8 @@
 import tkinter as tk, tkinter.font as tk_font
 from tkinter import ttk
 import os, string
+from osnavigator import OSNavigator
+
 
 class MasterWindow:
     def __init__(self):
@@ -9,10 +11,14 @@ class MasterWindow:
         self.cwd_labelframe = None
         self.cwd_scrollbar = None
         self.cwd_stringvar = None
-        self.cwd_listbox = None
+        self.cwd_scrollbar = None
+        self.cwd_textbox = None
+        self.cwd_textbox_select_indexes = None
+        self.cwd_textbox_select_colorset = ('black', 'lawn green')
         self.dir_listbox_labelframe = None
         self.dir_listbox_frame = None
-        self.dir_listbox_scrollbar = None
+        self.dir_listbox_y_scrollbar = None
+        self.dir_listbox_x_scrollbar = None
         self.dir_listbox = None
         self.dir_listbox_active_intvar = None
 
@@ -36,27 +42,26 @@ class MasterWindow:
     
     def populate_master_cwd_label(self, osnav):
         self.cwd_labelframe = self.create_cwd_labelframe(self.master)
-        self.cwd_scrollbar = self.create_cwd_scrollbar(self.cwd_labelframe)
+        self.cwd_x_scrollbar = self.create_cwd_x_scrollbar(self.cwd_labelframe)
         self.cwd_stringvar = self.create_cwd_stringvar(osnav)
-        self.cwd_listbox = self.create_cwd_listbox(self.cwd_labelframe, self.cwd_stringvar.get(), self.cwd_scrollbar)
-        self.link_cwd_scrollbar_to_listbox(self.cwd_labelframe, self.cwd_scrollbar, self.cwd_listbox)
+        self.cwd_textbox = self.create_cwd_textbox(self.cwd_labelframe, self.cwd_stringvar.get(), self.cwd_x_scrollbar)
+        self.link_cwd_x_scrollbar_to_textbox(self.cwd_labelframe, self.cwd_x_scrollbar, self.cwd_textbox)
 
 
     def create_cwd_labelframe(self, frame):
-        cwd_labelframe = tk.LabelFrame(frame, labelanchor=tk.W, width=273, height=42, bg='white')
+        cwd_labelframe = tk.LabelFrame(frame, labelanchor=tk.W, height=42, bg='white')
         cwd_labelframe.grid(column=0, row=0, columnspan=2, sticky=tk.NW, padx=20, pady=10)
-        cwd_labelframe.grid_propagate(0)
         return cwd_labelframe
 
     
-    def create_cwd_scrollbar(self, frame):
-        cwd_listbox_scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL)
-        cwd_listbox_scrollbar.grid(column=0, row=1, columnspan=2, sticky=tk.EW)
-        return cwd_listbox_scrollbar
+    def create_cwd_x_scrollbar(self, frame):
+        cwd_x_scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL)
+        cwd_x_scrollbar.grid(column=0, row=1, columnspan=2, sticky=tk.EW)
+        return cwd_x_scrollbar
 
     
-    def link_cwd_scrollbar_to_listbox(self, frame, scrollbar, listbox):
-        scrollbar.config(command=listbox.xview)
+    def link_cwd_x_scrollbar_to_textbox(self, frame, scrollbar, textbox):
+        scrollbar.config(command=textbox.xview)
         frame.grid(column=0, row=1, columnspan=2)
 
     
@@ -70,22 +75,132 @@ class MasterWindow:
         cwd_stringvar.set(osnav.cwd)
         return cwd_stringvar
 
-
-    def create_cwd_listbox(self, frame, cwd_stringvar, scrollbar):
-        cwd_listbox = tk.Listbox(frame, xscrollcommand=scrollbar.set, relief=tk.GROOVE, disabledforeground='black', height=1, width=44)
-        cwd_listbox.grid(column=0, row=0, sticky=tk.W)
-        cwd_listbox = self.update_cwd_listbox_content(cwd_listbox, cwd_stringvar)
-        return cwd_listbox
+    
+    def get_cwd_stringvar(self):
+        return self.cwd_stringvar.get()
 
 
-    def update_cwd_listbox_content(self, cwd_listbox, *args):
-        cwd_listbox.configure(state=tk.NORMAL)
-        cwd_listbox.delete(0, tk.END)
-        [cwd_listbox.insert(tk.END, args[x]) for x in range(len(args))]
-        cwd_listbox.configure(state=tk.DISABLED)
-        return cwd_listbox
+    def create_cwd_textbox(self, frame, cwd_stringvar, scrollbar):
+        cwd_textbox = tk.Text(frame, xscrollcommand=scrollbar.set, relief=tk.GROOVE, wrap=tk.NONE, cursor='hand2', selectbackground='white', selectforeground='black', insertwidth=3, height=1, width=40)
+        cwd_textbox.grid(column=0, row=0, sticky=tk.W)
+        cwd_textbox = self.update_cwd_textbox_content(cwd_textbox, cwd_stringvar)
+        cwd_textbox_bindings = [('<FocusIn>', self.cwd_textbox_focus_in_handler), ('<FocusOut>', self.cwd_textbox_focus_out_handler),
+                                ('<Left>', self.cwd_textbox_keypress_handler), ('<Right>', self.cwd_textbox_keypress_handler), ('<ButtonRelease>', self.cwd_textbox_button_handler),
+                                ('<Home>', self.cwd_textbox_keypress_handler), ('<End>', self.cwd_textbox_keypress_handler), ('<Return>', self.cwd_textbox_keypress_handler)]
+        [cwd_textbox.bind(cwd_textbox_bindings[x][0], cwd_textbox_bindings[x][1]) for x in range(len(cwd_textbox_bindings))]
+        return cwd_textbox
 
 
+    def update_cwd_textbox_content(self, cwd_textbox, *args):
+        cwd_textbox.configure(state=tk.NORMAL)
+        cwd_textbox.delete('0.0', tk.END)
+        [cwd_textbox.insert(tk.END, args[x]) for x in range(len(args))]
+        cwd_textbox.configure(state=tk.DISABLED)
+        return cwd_textbox
+
+    
+    def textbox_create_and_highlight_tag(self, textbox, tag_name, index_tuple, *, bg_color='cyan', fg_color='white', clear_tag_prev=True):
+        if clear_tag_prev == True:
+            self.textbox_clear_tag(textbox, tag_name)
+        textbox.mark_set('matchStart', index_tuple[0])
+        textbox.mark_set('matchEnd', index_tuple[1])
+        textbox.tag_add(tag_name, 'matchStart', 'matchEnd')
+        textbox.tag_configure(tag_name, background=bg_color, foreground=fg_color)
+
+    
+    def textbox_clear_tag(self, textbox, tag_name):
+        textbox.tag_delete(tag_name)
+
+    
+    def cwd_textbox_keypress_handler(self, event_obj):
+        if event_obj.keysym in ['Left', 'Right', 'Home', 'End']:
+            self.cwd_textbox_dir_nav_event_handler(event_obj)
+        elif event_obj.keysym in ['Return']:
+            self.cwd_textbox_chdir_nav_event_handler(event_obj)
+
+    
+    def cwd_textbox_button_handler(self, event_obj):
+        if event_obj.type.name == 'ButtonRelease':
+            self.cwd_textbox_dir_nav_event_handler(event_obj)
+
+
+    def cwd_textbox_focus_in_handler(self, event_obj):
+        self.cwd_textbox.tag_configure('cwd_sel_tag', background='blue')
+        self.cwd_textbox.tag_configure('cwd_sel_tag', foreground='white')
+
+
+    def cwd_textbox_focus_out_handler(self, event_obj):
+        self.cwd_textbox.tag_delete('cwd_sel_tag')
+
+    
+    def cwd_textbox_dir_nav_event_handler(self, event_obj):
+        insertion_index = self.cwd_textbox.index(tk.INSERT)
+        cwd_str = self.get_cwd_stringvar()
+        textbox_sel_bg_color = self.cwd_textbox_select_colorset[0]
+        textbox_sel_fg_color = self.cwd_textbox_select_colorset[1]
+        textbox_tag_start_text_index = None
+        textbox_tag_end_text_index = None
+
+        if event_obj.keysym in ['Left', 'Right'] or event_obj.type.name == 'ButtonRelease':
+            if event_obj.type.name == 'KeyPress':
+                if ((modifier := 1) and event_obj.keysym != 'Left'):
+                    modifier = -1
+            elif event_obj.type.name == 'ButtonRelease':
+                modifier = 0
+                insertion_index = self.cwd_textbox.index(tk.CURRENT)
+                
+            line_num_str = insertion_index[:insertion_index.find('.')]
+            insertion_index = int(insertion_index[insertion_index.find('.') + 1:]) + 1
+            if insertion_index != None:
+                if modifier == 0:
+                    if (start_index := (cwd_str.rfind('\\ '.strip(' '), 0, insertion_index)) + 1) == len(cwd_str):
+                        start_index = 0
+                    if (end_index := cwd_str.find('\\ '.strip(' '), insertion_index, len(cwd_str)) + 1) == 0:
+                        end_index = len(cwd_str)
+                elif modifier == 1:
+                    if (end_index := (cwd_str.rfind('\\ '.strip(' '), 0, insertion_index)) + 1) in [-1, 0]:
+                        return "break"
+                    if (start_index := cwd_str.rfind('\\ '.strip(' '), 0, end_index - 1) + 1) == -1:
+                        return "break"
+                elif modifier == -1:
+                    if (start_index := cwd_str.find('\\ '.strip(' '), insertion_index, len(cwd_str)) + 1) in [0, -1]:
+                        return "break"
+                    if (end_index := cwd_str.find('\\ '.strip(' '), start_index, len(cwd_str)) + 1) == 0:
+                        end_index = len(cwd_str)
+                textbox_tag_start_text_index = f"{line_num_str}.{str(start_index)}"
+                textbox_tag_end_text_index = f"{line_num_str}.{str(end_index)}"
+        
+        elif event_obj.keysym in ['Home', 'End']:
+            line_num_str = insertion_index[:insertion_index.find('.')]
+            if event_obj.keysym == 'Home':
+                start_index = 0
+                end_index = cwd_str.find('\\ '.strip(' ')) + 1
+            else:
+                start_index = cwd_str.rfind('\\ '.strip(' ')) + 1
+                end_index = len(cwd_str)
+                if start_index == end_index:
+                    start_index = 0
+            textbox_tag_start_text_index = f"{line_num_str}.{str(start_index)}"
+            textbox_tag_end_text_index = f"{line_num_str}.{str(end_index)}"
+
+        if textbox_tag_start_text_index != None and textbox_tag_end_text_index != None:
+            self.cwd_textbox.mark_set('insert', textbox_tag_start_text_index)
+            self.cwd_textbox.see(textbox_tag_end_text_index)
+            self.cwd_textbox.see(textbox_tag_start_text_index)
+            self.textbox_create_and_highlight_tag(self.cwd_textbox, 'cwd_sel_tag', (textbox_tag_start_text_index, textbox_tag_end_text_index), bg_color=textbox_sel_bg_color, fg_color=textbox_sel_fg_color)
+            self.cwd_textbox_select_indexes = (textbox_tag_start_text_index, textbox_tag_end_text_index)
+        return "break"
+
+    
+    def cwd_textbox_chdir_nav_event_handler(self, event_obj):
+        osnav = self.osnav
+        if event_obj.keysym in ['Return']:
+            end_index = f"{self.cwd_textbox_select_indexes[1][:self.cwd_textbox_select_indexes[1].find('.')]}.{str(int(self.cwd_textbox_select_indexes[1][self.cwd_textbox_select_indexes[1].find('.') + 1:]))}"
+            selected_dir = self.cwd_textbox.get('0.0', end_index)
+            osnav.chdir(selected_dir)
+            self.update_widgets_post_dir_change()
+
+        
     def populate_master_dir_listbox(self, osnav):
         self.dir_listbox_labelframe = self.create_dir_listbox_labelframe(self.master)
         self.dir_listbox_frame = self.create_dir_listbox_frame(self.dir_listbox_labelframe)
@@ -103,8 +218,8 @@ class MasterWindow:
         return dir_listbox_labelframe
 
 
-    def create_dir_listbox_frame(self, labelframe):
-        dir_listbox_frame = tk.Frame(labelframe)
+    def create_dir_listbox_frame(self, frame):
+        dir_listbox_frame = tk.Frame(frame)
         return dir_listbox_frame
 
 
@@ -180,7 +295,7 @@ class MasterWindow:
         
 
     def create_dir_listbox(self, frame, y_scrollbar, x_scrollbar, osnav, event_func):
-        dir_listbox = tk.Listbox(frame, yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set)
+        dir_listbox = tk.Listbox(frame, yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set, width=25, height=15)
         dir_listbox = self.get_dir_listbox_content(dir_listbox, osnav)
         dir_listbox.grid(column=0, row=1, sticky=tk.W)
         keypress_event_list = ['<KeyPress-Return>', '<KeyPress-BackSpace>', '<KeyPress-Up>', '<KeyPress-Down>']
@@ -189,9 +304,9 @@ class MasterWindow:
 
     
     def get_dir_listbox_content(self, dir_listbox, osnav):
-        dir_listbox.insert(0, '--Parent Directory--')
+        dir_listbox.insert(0, ' ' + '--Parent Directory--')
         dir_listbox_spacer_index_list = [1]
-        [dir_listbox.insert(tk.END, osnav.cwd_scan['dirs'][x].name) for x in range(1, len(osnav.cwd_scan['dirs'])) if osnav.cwd_scan['dirs'][x] != None]
+        [dir_listbox.insert(tk.END, ' ' + osnav.cwd_scan['dirs'][x].name) for x in range(1, len(osnav.cwd_scan['dirs'])) if osnav.cwd_scan['dirs'][x] != None]
         [(dir_listbox.insert(dir_listbox_spacer_index_list[x], '\n'), osnav.cwd_scan_insert_dir(dir_listbox_spacer_index_list[x], None)) for x in range(len(dir_listbox_spacer_index_list))]
         for x in range(0, dir_listbox.size() - 1):
             if x not in dir_listbox_spacer_index_list:
@@ -229,103 +344,9 @@ class MasterWindow:
 
     def update_widgets_post_dir_change(self):
         self.cwd_stringvar = self.set_cwd_stringvar(self.cwd_stringvar, self.osnav)
-        self.cwd_listbox = self.update_cwd_listbox_content(self.cwd_listbox, self.cwd_stringvar.get())
+        self.cwd_textbox = self.update_cwd_textbox_content(self.cwd_textbox, self.cwd_stringvar.get())
         self.dir_listbox = self.update_dir_listbox_content(self.dir_listbox, self.osnav)
-
-
-
-
-class OSNavigator:
-    def __init__(self):
-        self.drives = self.get_drives()
-        self.base_dir = self.get_base_dir()
-        self.cwd = self.getcwd() 
-        self.cwd_scan = self.update_cwd_scan()
-        self.dir_changelog = []
-    
-
-    def get_drives(self):
-        available_drives = ['{0}:'.format(x) for x in string.ascii_uppercase if os.path.exists('{0}:'.format(x))]
-        return available_drives
-
-
-    def get_base_dir(self):
-        base_dir = os.getcwd()[:os.getcwd().find('\\') + 1]
-        os.chdir(base_dir)
-        return base_dir
-
-
-    def getcwd(self):
-        cwd = os.getcwd()
-        return cwd
-
-
-    def update_cwd_scan(self):
-        cwd_scan_list = list(os.scandir())
-        cwd_scan = {'dirs': [x for x in cwd_scan_list if x.is_dir() == True], 'files': [x for x in cwd_scan_list if x.is_file() == True]}
-        cwd_scan['dirs'].insert(0, '..')
-        return cwd_scan
-
-
-    def cwd_scan_insert_dir(self, insert_index, dir_name):
-        self.cwd_scan['dirs'].insert(insert_index, dir_name)
-
-
-    def chdir(self, target_dir, *, reversal=False):
-        try:
-            prev_dir = self.cwd
-            if prev_dir == target_dir:
-                return
-            os.chdir(target_dir)
-            self.cwd = self.getcwd()
-            self.cwd_scan = self.update_cwd_scan()
-            if reversal == False:
-                self.log_chdir(prev_dir)
-        except FileNotFoundError as e:
-            return ('Exception', e)
-
-
-    def log_chdir(self, prev_dir):
-        chdir_pair = (prev_dir, self.cwd)
-        self.dir_changelog.append(chdir_pair)
-
-
-    def reverse_chdir(self):
-        rev_chdir_pair = self.dir_changelog.pop()
-        self.chdir(rev_chdir_pair[0], reversal=True)
-
-
-    def test_chdir(self):
-        testing_chdir = True
-        while testing_chdir == True:
-            print(f'\n(cwd) {self.cwd}')
-            available_dirs = {x: self.cwd_scan['dirs'][x].name for x in range(len(self.cwd_scan['dirs']))}
-            available_dirs_keys = list(available_dirs.keys())
-            chosen_index = None
-            while chosen_index not in available_dirs_keys:
-                print('''Please enter a directory index.\n"..": Parent Directory\n"/B": Reverse Directory Change.\n"/Q": Quit.''')
-                if len(available_dirs_keys) > 0:
-                    [print(f'{available_dirs_keys[x]}: {available_dirs[available_dirs_keys[x]]}') for x in range(len(available_dirs_keys))]
-                else:
-                    print('No sub-directories found. Please navigate using either ".." or "/b".')
-                chosen_index = input()
-                if chosen_index.lower() == '/q':
-                    testing_chdir = False
-                    break
-                elif chosen_index == '..':
-                    self.chdir(chosen_index)
-                    break
-                elif chosen_index.lower() == '/b':
-                    self.reverse_chdir()
-                    break
-                if chosen_index.isdigit() == True:
-                    chosen_index = int(chosen_index)    
-                    chosen_dir = available_dirs[chosen_index]
-                    self.chdir(chosen_dir)
-                    print(self.dir_changelog[-1])
-
-            
-
+      
 
 if __name__ == "__main__":
     master_window = MasterWindow()
