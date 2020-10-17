@@ -1,3 +1,6 @@
+import os, string
+
+
 class OSNavigator:
     def __init__(self):
         self.drives = self.get_drives()
