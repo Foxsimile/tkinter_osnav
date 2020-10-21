@@ -155,17 +155,17 @@ class MasterWindow:
                 if modifier == 0:
                     if (start_index := (cwd_str.rfind('\\ '.strip(' '), 0, insertion_index)) + 1) == len(cwd_str):
                         start_index = 0
-                    if (end_index := cwd_str.find('\\ '.strip(' '), insertion_index, len(cwd_str)) + 1) == 0:
+                    if (end_index := cwd_str.find('\\ '.strip(' '), insertion_index, len(cwd_str))) == -1:
                         end_index = len(cwd_str)
                 elif modifier == 1:
-                    if (end_index := (cwd_str.rfind('\\ '.strip(' '), 0, insertion_index)) + 1) in [-1, 0]:
+                    if (end_index := (cwd_str.rfind('\\ '.strip(' '), 0, insertion_index))) in [-1, 0]:
                         return "break"
                     if (start_index := cwd_str.rfind('\\ '.strip(' '), 0, end_index - 1) + 1) == -1:
                         return "break"
                 elif modifier == -1:
                     if (start_index := cwd_str.find('\\ '.strip(' '), insertion_index, len(cwd_str)) + 1) in [0, -1]:
                         return "break"
-                    if (end_index := cwd_str.find('\\ '.strip(' '), start_index, len(cwd_str)) + 1) == 0:
+                    if (end_index := cwd_str.find('\\ '.strip(' '), start_index, len(cwd_str))) == -1:
                         end_index = len(cwd_str)
                 textbox_tag_start_text_index = f"{line_num_str}.{str(start_index)}"
                 textbox_tag_end_text_index = f"{line_num_str}.{str(end_index)}"
@@ -174,7 +174,7 @@ class MasterWindow:
             line_num_str = insertion_index[:insertion_index.find('.')]
             if event_obj.keysym == 'Home':
                 start_index = 0
-                end_index = cwd_str.find('\\ '.strip(' ')) + 1
+                end_index = cwd_str.find('\\ '.strip(' '))
             else:
                 start_index = cwd_str.rfind('\\ '.strip(' ')) + 1
                 end_index = len(cwd_str)
@@ -231,7 +231,7 @@ class MasterWindow:
     
     def create_dir_x_scrollbar(self, frame):
         dir_listbox_x_scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL)
-        dir_listbox_x_scrollbar.grid(column=0, row=2, columnspan=2, sticky=tk.EW)
+        dir_listbox_x_scrollbar.grid(column=0, row=2, columnspan=1, sticky=tk.EW)
         return dir_listbox_x_scrollbar
 
 
