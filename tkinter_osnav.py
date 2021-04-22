@@ -326,7 +326,7 @@ class MasterWindow:
         if event_obj.keysym in ['Return']:
             end_index = f"{self.cwd_textbox_select_indexes[1][:self.cwd_textbox_select_indexes[1].find('.')]}.{str(int(self.cwd_textbox_select_indexes[1][self.cwd_textbox_select_indexes[1].find('.') + 1:]))}"
             selected_dir = self.cwd_textbox.get('0.0', end_index)
-            osnav.chdir(selected_dir)
+            osnav.chdir(selected_dir.name)
             self.update_widgets_post_dir_change()
 
     
@@ -395,7 +395,7 @@ class MasterWindow:
         if selected_dir == None:
             pass
         elif selected_dir != cwd_name:
-            osnav.chdir(selected_dir)
+            osnav.chdir(selected_dir.name)
             self.update_widgets_post_dir_change()
             self.set_dir_active_intvar(dir_active_intvar, dir_listbox.curselection())
         return (dir_listbox, dir_listbox.curselection()[0])
