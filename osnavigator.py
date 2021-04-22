@@ -38,7 +38,7 @@ class OSNavigator:
     
 
     def get_main_script_dir(self):
-        return os.path.split(argv[0])[0]
+       return os.path.dirname(os.path.abspath(__file__))
 
 
     def get_base_dir(self):
