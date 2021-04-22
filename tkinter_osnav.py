@@ -84,8 +84,9 @@ class MasterWindow:
     
 
     def load_saved_favorites_data(self):
-        default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), 'favorites_settings.json')
-        loaded_data = self.osnav.json_file_loader(self.osnav.main_script_dir, 'favorites_settings.json', ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
+        default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), 'dummy_filename.json')
+        loaded_data = self.osnav.json_file_loader(self.osnav.main_script_dir, 'dummy_filename.json', ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
+        
         if loaded_data != None:
             if isinstance(loaded_data, dict):
                 filename_default = loaded_data.get('filename_default', None)
@@ -328,6 +329,12 @@ class MasterWindow:
             osnav.chdir(selected_dir)
             self.update_widgets_post_dir_change()
 
+    
+    def zero_listbox_sel_and_change_listbox_focus(self):
+        self.currently_active_listbox_obj.selection_set(0)
+        self.currently_active_listbox_obj.activate(0)
+        self.currently_active_listbox_obj.focus_set()
+
         
     def populate_master_dir_listbox(self, osnav):
         self.dir_listbox_labelframe = self.create_dir_listbox_labelframe(self.master)
@@ -550,7 +557,7 @@ class MasterWindow:
                 if event_obj.keysym == 'Return':
                     self.origin_select_button.invoke()
         elif self.currently_active_listbox_obj == self.dir_listbox:
-            self.origin_dir_selected = self.omni_select_command_get_dir(self.origin_entry_widget)
+            self.origin_selected = self.omni_select_command_get_dir(self.origin_entry_widget)
         elif self.currently_active_listbox_obj == self.origin_favorites_listbox:
             self.origin_selected = self.omni_select_command_get_favorite(self.origin_entry_widget, self.origin_favorites_listbox, self.origin_favorites_data)
 
@@ -574,6 +581,7 @@ class MasterWindow:
             self.origin_favorites_base_frame.lower()
             self.origin_favorites_button.configure(relief=tk.RAISED)
             self.origin_favorites_button.configure(bg='SystemButtonFace')
+        self.zero_listbox_sel_and_change_listbox_focus()
         
     
     def populate_master_filename_entry_widget(self, osnav, parent_frame):
@@ -668,7 +676,7 @@ class MasterWindow:
         elif self.currently_active_listbox_obj == self.target_dir_favorites_listbox:
             self.target_dir_selected = self.omni_select_command_get_favorite(self.target_dir_entry_widget, self.target_dir_favorites_listbox, self.target_dir_favorites_data)
 
-    
+
     def create_target_dir_favorites_button(self, frame, command_func):
         target_dir_favorites_button = tk.Button(frame, command=command_func, text='FAVORITES', font=tk.font.Font(size=7))
         target_dir_favorites_button.grid(column=1, row=1, columnspan=2, sticky=tk.EW)
@@ -688,6 +696,7 @@ class MasterWindow:
             self.target_dir_favorites_base_frame.lower()
             self.target_dir_favorites_button.configure(relief=tk.RAISED)
             self.target_dir_favorites_button.configure(bg='SystemButtonFace')
+        self.zero_listbox_sel_and_change_listbox_focus()
 
     
     def activate_widget_grid_from_grid_info(self, widget, grid_info):

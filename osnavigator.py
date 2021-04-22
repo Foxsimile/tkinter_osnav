@@ -1,10 +1,12 @@
 import os, string, json
-from sys import argv
+from sys import argv, platform
 
 
 class OSNavigator:
     def __init__(self):
+        print(f'OS IS:{platform}')
         self.op_sys = self.get_os()
+        self.sep = self.get_path_sep()
         self.main_script_dir = self.get_main_script_dir()
         self.drives = self.get_drives()
         self.base_dir = self.get_base_dir()
@@ -15,8 +17,10 @@ class OSNavigator:
 
 
     def get_os(self):
-        op_sys = os.environ['OS']
-        return op_sys
+        standard_platforms = {'linux': 'Linux', 'linux1': 'Linux', 'linux2': 'Linux', 'darwin': 'OS X', 'win32': 'Windows'}
+        if platform not in standard_platforms:
+            return platform
+        return standard_platforms[platform]
 
     
     def get_path_sep(self):
@@ -24,9 +28,13 @@ class OSNavigator:
         
 
     def get_drives(self):
-        if self.op_sys == 'Windows_NT':
-            available_drives = ['{0}:'.format(x) for x in string.ascii_uppercase if os.path.exists('{0}:'.format(x))]
-            return available_drives
+        if self.op_sys == 'Windows':
+            available_drives = tuple(['{0}:'.format(x) for x in string.ascii_uppercase if os.path.exists('{0}:'.format(x))])
+        else:
+            available_drives = ('/')
+        if len(available_drives) < 1:
+            exit(-1)
+        return available_drives
     
 
     def get_main_script_dir(self):
@@ -34,8 +42,13 @@ class OSNavigator:
 
 
     def get_base_dir(self):
-        base_dir = os.getcwd()[:os.getcwd().find('\\') + 1]
-        os.chdir(base_dir)
+        if self.op_sys == 'Windows':
+            if 'C:' in self.drives:
+                base_dir = 'C:'
+            else:
+                base_dir = self.drives[0]
+        elif self.op_sys in ('Linux', 'OS X'):
+            base_dir = '/'
         return base_dir
 
 
@@ -73,7 +86,7 @@ class OSNavigator:
     def chdir(self, target_dir, *, reversal=False):
         try:
             if target_dir in self.drives:
-                target_dir += self.get_path_sep()
+                target_dir += self.sep
             prev_dir = self.cwd
             if prev_dir == target_dir:
                 return
