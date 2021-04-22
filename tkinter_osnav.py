@@ -84,8 +84,8 @@ class MasterWindow:
     
 
     def load_saved_favorites_data(self):
-        default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), 'dummy_filename.json')
-        loaded_data = self.osnav.json_file_loader(self.osnav.main_script_dir, 'dummy_filename.json', ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
+        default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), 'favorites_settings.json')
+        loaded_data = self.osnav.json_file_loader(self.osnav.main_script_dir, 'favorites_settings.json', ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
         
         if loaded_data != None:
             if isinstance(loaded_data, dict):
