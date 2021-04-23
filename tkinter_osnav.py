@@ -95,7 +95,6 @@ class MasterWindow:
                 origin_favorites_default = loaded_data.get('origin_default', None)
                 if isinstance(origin_favorites_default, list) and len(origin_favorites_default) == 2 and isinstance(origin_favorites_default[0], str) and isinstance(origin_favorites_default[1], str):
                     origin_favorites_default = (origin_favorites_default[0], self.osnav.verify_paths(origin_favorites_default[1], single_path=True))
-                    print(f"\n\norigin_fav_def:{origin_favorites_default}\n\n")
                     if origin_favorites_default[1] != '':
                         self.origin_favorites_default = origin_favorites_default
                 target_dir_favorites_default = loaded_data.get('target_default', None)
@@ -326,7 +325,7 @@ class MasterWindow:
         if event_obj.keysym in ['Return']:
             end_index = f"{self.cwd_textbox_select_indexes[1][:self.cwd_textbox_select_indexes[1].find('.')]}.{str(int(self.cwd_textbox_select_indexes[1][self.cwd_textbox_select_indexes[1].find('.') + 1:]))}"
             selected_dir = self.cwd_textbox.get('0.0', end_index)
-            osnav.chdir(selected_dir.name)
+            osnav.chdir(selected_dir)
             self.update_widgets_post_dir_change()
 
     
@@ -395,7 +394,7 @@ class MasterWindow:
         if selected_dir == None:
             pass
         elif selected_dir != cwd_name:
-            osnav.chdir(selected_dir.name)
+            osnav.chdir(selected_dir)
             self.update_widgets_post_dir_change()
             self.set_dir_active_intvar(dir_active_intvar, dir_listbox.curselection())
         return (dir_listbox, dir_listbox.curselection()[0])
@@ -445,7 +444,7 @@ class MasterWindow:
     def get_dir_listbox_content(self, dir_listbox, osnav):
         dir_listbox.insert(0, ' ' + '--Parent Directory--')
         dir_listbox_spacer_index_list = [[], [1]][(len(osnav.cwd_scan['dirs']) > 1)]
-        [dir_listbox.insert(tk.END, ' ' + osnav.cwd_scan['dirs'][x].name) for x in range(1, len(osnav.cwd_scan['dirs'])) if osnav.cwd_scan['dirs'][x] != None]
+        [dir_listbox.insert(tk.END, ' ' + osnav.cwd_scan['dirs'][x]) for x in range(1, len(osnav.cwd_scan['dirs'])) if osnav.cwd_scan['dirs'][x] != None]
         [(dir_listbox.insert(dir_listbox_spacer_index_list[x], '\n'), osnav.cwd_scan_insert_dir(dir_listbox_spacer_index_list[x], None)) for x in range(len(dir_listbox_spacer_index_list))]
         selection_index = None
         for x in range(0, dir_listbox.size() - 1):

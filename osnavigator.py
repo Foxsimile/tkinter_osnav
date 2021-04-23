@@ -74,7 +74,7 @@ class OSNavigator:
 
     def update_cwd_scan(self):
         cwd_scan_list = list(os.scandir())
-        cwd_scan = {'dirs': [x for x in cwd_scan_list if x.is_dir() == True], 'files': [x for x in cwd_scan_list if x.is_file() == True]}
+        cwd_scan = {'dirs': [x.name for x in cwd_scan_list if x.is_dir() == True], 'files': [x for x in cwd_scan_list if x.is_file() == True]}
         cwd_scan['dirs'].insert(0, '..')
         return cwd_scan
 
@@ -118,7 +118,7 @@ class OSNavigator:
         joined_path = os.path.join(base_path, addon_path)
         return joined_path
 
-    
+
     def seek_file_sub_dirs(self, base_dir, file, *, depth_limit=5, ignored_dirs=None, ignored_files=None, default_dir=None, **kwargs):
         os_walk_gen = os.walk(base_dir)
         if ignored_dirs != None:
