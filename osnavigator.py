@@ -4,7 +4,6 @@ from sys import argv, platform
 
 class OSNavigator:
     def __init__(self):
-        print(f'OS IS:{platform}')
         self.op_sys = self.get_os()
         self.sep = self.get_path_sep()
         self.main_script_dir = self.get_main_script_dir()

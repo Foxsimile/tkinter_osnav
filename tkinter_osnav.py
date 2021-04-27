@@ -85,11 +85,12 @@ class MasterWindow:
 
     
     def set_operating_system_specifics(self, op_sys):
-        op_sys_specs = {'font': tk_font.Font(), 'fav_listbox_width_height': (0, 0), 'fav_canvas_width_height': (0, 0)}
+        default_font = tk_font.nametofont('TkDefaultFont')
+        op_sys_specs = {'font': default_font, 'fav_listbox_width_height': (0, 0), 'fav_canvas_width_height': (26, 240)}
         if op_sys in ('Linux', 'OS X'):
-            op_sys_specs['font'] = tk_font.Font(family='DejaVu Serif', size=10)
+            op_sys_specs['font'].configure(family='DejaVu Serif', size=10)
             op_sys_specs['fav_listbox_width_height'] = (1, 0)
-            op_sys_specs['fav_canvas_width_height'] = (4, 30)
+            op_sys_specs['fav_canvas_width_height'] = (30, 270)
         return op_sys_specs
     
 
@@ -722,7 +723,7 @@ class MasterWindow:
         y_scrollbar_grid_info = self.create_grid_info_dict(column=2, sticky=tk.NS)
         canvas_grid_info = self.create_grid_info_dict(sticky=tk.NW)
         favorites_widgets = self.populate_favorites_overlay_omni(self.master, base_grid_info, listbox_grid_info, ((listbox_width_height[0] - 5), listbox_width_height[1]), x_scrollbar_grid_info,
-                                            y_scrollbar_grid_info, canvas_grid_info, (26, 240), default_attr, favorites_data)
+                                            y_scrollbar_grid_info, canvas_grid_info, self.op_sys_specs['fav_canvas_width_height'], default_attr, favorites_data)
         return favorites_widgets
 
 
@@ -813,7 +814,7 @@ class MasterWindow:
 
 
     def create_favorites_overlay_listbox(self, frame, listbox_width_height, x_scrollbar, listbox_grid, favorites_data, default_attr):
-        favorites_listbox = tk.Listbox(frame, width=listbox_width_height[0], height=listbox_width_height[1], xscrollcommand=x_scrollbar.set)
+        favorites_listbox = tk.Listbox(frame, width=listbox_width_height[0], height=listbox_width_height[1], xscrollcommand=x_scrollbar.set) #, font=self.op_sys_specs['font'])
         self.activate_widget_grid_from_grid_info(favorites_listbox, listbox_grid)
         [favorites_listbox.insert(x, f" {favorites_data[x][0]} «{favorites_data[x][1]}» ") for x in range(len(favorites_data))]
         if getattr(self, default_attr) == favorites_data[0]:
