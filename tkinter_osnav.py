@@ -23,6 +23,7 @@ class MasterWindow:
     def __init__(self):
         self.master = self.create_master()
         self.osnav = OSNavigator()
+        self.op_sys_specs = self.set_operating_system_specifics(self.osnav.op_sys)
         self.photoimage_dict = {}
         self.initialize_photoimage_library()
         self.currently_active_listbox_obj = None
@@ -81,6 +82,15 @@ class MasterWindow:
 
         self.load_saved_favorites_data()
         self.populate_master_overseer(self.osnav)
+
+    
+    def set_operating_system_specifics(self, op_sys):
+        op_sys_specs = {'font': tk_font.Font(), 'fav_listbox_width_height': (0, 0), 'fav_canvas_width_height': (0, 0)}
+        if op_sys in ('Linux', 'OS X'):
+            op_sys_specs['font'] = tk_font.Font(family='DejaVu Serif', size=10)
+            op_sys_specs['fav_listbox_width_height'] = (1, 0)
+            op_sys_specs['fav_canvas_width_height'] = (4, 30)
+        return op_sys_specs
     
 
     def load_saved_favorites_data(self):
@@ -230,6 +240,7 @@ class MasterWindow:
     def textbox_create_and_highlight_tag(self, textbox, tag_name, index_tuple, *, bg_color='cyan', fg_color='white', clear_tag_prev=True):
         if clear_tag_prev == True:
             self.textbox_clear_tag(textbox, tag_name)
+        textbox.force_set()
         textbox.mark_set('matchStart', index_tuple[0])
         textbox.mark_set('matchEnd', index_tuple[1])
         textbox.tag_add(tag_name, 'matchStart', 'matchEnd')
@@ -253,8 +264,7 @@ class MasterWindow:
 
 
     def cwd_textbox_focus_in_handler(self, event_obj):
-        self.cwd_textbox.tag_configure('cwd_sel_tag', background='blue')
-        self.cwd_textbox.tag_configure('cwd_sel_tag', foreground='white')
+        pass
 
 
     def cwd_textbox_focus_out_handler(self, event_obj):
@@ -327,6 +337,7 @@ class MasterWindow:
             selected_dir = self.cwd_textbox.get('0.0', end_index)
             osnav.chdir(selected_dir)
             self.update_widgets_post_dir_change()
+            self.currently_active_listbox_obj.focus_force()
 
     
     def zero_listbox_sel_and_change_listbox_focus(self):
@@ -512,7 +523,8 @@ class MasterWindow:
         self.origin_save_button = self.create_origin_save_button(self.origin_labelframe)
         self.origin_select_button = self.create_origin_select_button(self.origin_labelframe, self.origin_select_button_command_handler)
         self.origin_favorites_button = self.create_origin_favorites_button(self.origin_labelframe, self.origin_favorites_button_command)
-        self.origin_favorites_base_frame, self.origin_favorites_x_scrollbar, self.origin_favorites_y_scrollbar, self.origin_favorites_canvas, self.origin_favorites_listbox, self.origin_favorites_inner_frame, self.origin_favorites_option_buttons = self.create_favorites_overlay_omni_overseer((self.dir_listbox.cget('width'), self.dir_listbox.cget('height')), 'origin_favorites_default', self.origin_favorites_data)
+        fav_listbox_width_height = (self.dir_listbox.cget('width') + self.op_sys_specs['fav_listbox_width_height'][0], self.dir_listbox.cget('height') + self.op_sys_specs['fav_listbox_width_height'][1])
+        self.origin_favorites_base_frame, self.origin_favorites_x_scrollbar, self.origin_favorites_y_scrollbar, self.origin_favorites_canvas, self.origin_favorites_listbox, self.origin_favorites_inner_frame, self.origin_favorites_option_buttons = self.create_favorites_overlay_omni_overseer(fav_listbox_width_height, 'origin_favorites_default', self.origin_favorites_data)
         self.origin_favorites_listbox.bind('<Return>', self.origin_select_button_command_handler)
 
 
