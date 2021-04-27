@@ -89,7 +89,7 @@ class MasterWindow:
         master.geometry('475x350')
         master.title('Welcome to the Fox Box!')
         master.minsize(485, 350)
-        master.maxsize(485, 350)
+        #master.maxsize(485, 350)
         return master
 
     
