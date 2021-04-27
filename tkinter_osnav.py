@@ -606,7 +606,7 @@ class MasterWindow:
 
     def create_filename_labelframe(self, frame):
         filename_labelframe = tk.LabelFrame(frame, text="Save As", relief=tk.RIDGE, padx=2)
-        filename_labelframe.grid(column=0, row=0) #, sticky=tk.W)
+        filename_labelframe.grid(column=0, row=0)
         return filename_labelframe
 
 
@@ -734,7 +734,7 @@ class MasterWindow:
         favorites_x_scrollbar = self.create_favorites_overlay_xory_scrollbar(favorites_base_frame, x_scrollbar_grid, scrollbar_orient=tk.HORIZONTAL)
         favorites_y_scrollbar = self.create_favorites_overlay_xory_scrollbar(favorites_base_frame, y_scrollbar_grid)
         favorites_canvas = self.create_favorites_overlay_canvas(favorites_base_frame, canvas_width_height, canvas_grid)
-        listbox_width_height = fav_listbox_width_height = (listbox_width_height + self.op_sys_specs['fav_listbox_width_height'][0], listbox_width_height + self.op_sys_specs['fav_listbox_width_height'][1])
+        listbox_width_height = (listbox_width_height[0] + self.op_sys_specs['fav_listbox_width_height'][0], listbox_width_height[1] + self.op_sys_specs['fav_listbox_width_height'][1])
         favorites_listbox = self.create_favorites_overlay_listbox(favorites_base_frame, listbox_width_height, favorites_x_scrollbar, listbox_grid, favorites_data, default_attr)
         favorites_inner_frame = self.create_favorites_overlay_inner_frame(favorites_canvas, canvas_width_height, canvas_grid, [('pady', 2)])
         favorites_option_buttons = self.create_favorites_options_buttons(favorites_inner_frame, favorites_listbox, self.favorites_delete_buttons_command_factory_func, self.favorites_default_buttons_command_factory_func, favorites_data, default_attr)
