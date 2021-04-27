@@ -240,7 +240,7 @@ class MasterWindow:
     def textbox_create_and_highlight_tag(self, textbox, tag_name, index_tuple, *, bg_color='cyan', fg_color='white', clear_tag_prev=True):
         if clear_tag_prev == True:
             self.textbox_clear_tag(textbox, tag_name)
-        textbox.force_set()
+        textbox.focus_set()
         textbox.mark_set('matchStart', index_tuple[0])
         textbox.mark_set('matchEnd', index_tuple[1])
         textbox.tag_add(tag_name, 'matchStart', 'matchEnd')
