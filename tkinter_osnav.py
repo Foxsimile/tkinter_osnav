@@ -84,6 +84,15 @@ class MasterWindow:
         self.populate_master_overseer(self.osnav)
 
     
+    def create_master(self):
+        master = tk.Tk()
+        master.geometry('475x350')
+        master.title('Welcome to the Fox Box!')
+        master.minsize(485, 350)
+        master.maxsize(485, 350)
+        return master
+
+    
     def set_operating_system_specifics(self, op_sys):
         default_font = tk_font.nametofont('TkDefaultFont')
         op_sys_specs = {'font': default_font, 'fav_listbox_width_height': (0, 0), 'fav_canvas_width_height': (26, 240)}
@@ -138,15 +147,6 @@ class MasterWindow:
         favorites_dict = {'filename_default': self.filename_default, 'origin_default': self.origin_favorites_default, 'target_default': self.target_dir_favorites_default,
                             'origin_favorites': self.origin_favorites_data, 'target_favorites': self.target_dir_favorites_data}
         return favorites_dict
-
-
-    def create_master(self):
-        master = tk.Tk()
-        master.geometry('490x350')
-        master.title('Welcome to the Fox Box!')
-        master.minsize(300, 300)
-        master.maxsize(600, 600)
-        return master
 
 
     def populate_master_overseer(self, osnav):
@@ -257,6 +257,7 @@ class MasterWindow:
             self.cwd_textbox_dir_nav_event_handler(event_obj)
         elif event_obj.keysym in ['Return']:
             self.cwd_textbox_chdir_nav_event_handler(event_obj)
+            self.currently_active_listbox_obj.focus_set()
 
     
     def cwd_textbox_button_handler(self, event_obj):
