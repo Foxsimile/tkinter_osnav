@@ -525,8 +525,7 @@ class MasterWindow:
         self.origin_save_button = self.create_origin_save_button(self.origin_labelframe)
         self.origin_select_button = self.create_origin_select_button(self.origin_labelframe, self.origin_select_button_command_handler)
         self.origin_favorites_button = self.create_origin_favorites_button(self.origin_labelframe, self.origin_favorites_button_command)
-        fav_listbox_width_height = (self.dir_listbox.cget('width') + self.op_sys_specs['fav_listbox_width_height'][0], self.dir_listbox.cget('height') + self.op_sys_specs['fav_listbox_width_height'][1])
-        self.origin_favorites_base_frame, self.origin_favorites_x_scrollbar, self.origin_favorites_y_scrollbar, self.origin_favorites_canvas, self.origin_favorites_listbox, self.origin_favorites_inner_frame, self.origin_favorites_option_buttons = self.create_favorites_overlay_omni_overseer(fav_listbox_width_height, 'origin_favorites_default', self.origin_favorites_data)
+        self.origin_favorites_base_frame, self.origin_favorites_x_scrollbar, self.origin_favorites_y_scrollbar, self.origin_favorites_canvas, self.origin_favorites_listbox, self.origin_favorites_inner_frame, self.origin_favorites_option_buttons = self.create_favorites_overlay_omni_overseer((self.dir_listbox.cget('width'), self.dir_listbox.cget('height')), 'origin_favorites_default', self.origin_favorites_data)
         self.origin_favorites_listbox.bind('<Return>', self.origin_select_button_command_handler)
 
 
@@ -735,6 +734,7 @@ class MasterWindow:
         favorites_x_scrollbar = self.create_favorites_overlay_xory_scrollbar(favorites_base_frame, x_scrollbar_grid, scrollbar_orient=tk.HORIZONTAL)
         favorites_y_scrollbar = self.create_favorites_overlay_xory_scrollbar(favorites_base_frame, y_scrollbar_grid)
         favorites_canvas = self.create_favorites_overlay_canvas(favorites_base_frame, canvas_width_height, canvas_grid)
+        listbox_width_height = fav_listbox_width_height = (listbox_width_height + self.op_sys_specs['fav_listbox_width_height'][0], listbox_width_height + self.op_sys_specs['fav_listbox_width_height'][1])
         favorites_listbox = self.create_favorites_overlay_listbox(favorites_base_frame, listbox_width_height, favorites_x_scrollbar, listbox_grid, favorites_data, default_attr)
         favorites_inner_frame = self.create_favorites_overlay_inner_frame(favorites_canvas, canvas_width_height, canvas_grid, [('pady', 2)])
         favorites_option_buttons = self.create_favorites_options_buttons(favorites_inner_frame, favorites_listbox, self.favorites_delete_buttons_command_factory_func, self.favorites_default_buttons_command_factory_func, favorites_data, default_attr)
