@@ -83,7 +83,7 @@ class MasterWindow:
         self.load_saved_favorites_data()
         self.populate_master_overseer(self.osnav)
 
-    
+
     def create_master(self):
         master = tk.Tk()
         master.geometry('475x350')
@@ -92,7 +92,7 @@ class MasterWindow:
         #master.maxsize(485, 350)
         return master
 
-    
+
     def set_operating_system_specifics(self, op_sys):
         default_font = tk_font.nametofont('TkDefaultFont')
         op_sys_specs = {'font': default_font, 'fav_listbox_width_height': (0, 0), 'fav_canvas_width_height': (26, 240)}
@@ -101,7 +101,7 @@ class MasterWindow:
             op_sys_specs['fav_listbox_width_height'] = (1, 0)
             op_sys_specs['fav_canvas_width_height'] = (30, 270)
         return op_sys_specs
-    
+
 
     def load_saved_favorites_data(self):
         default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), 'favorites_settings.json')
@@ -136,7 +136,7 @@ class MasterWindow:
                     target_dir_favorites_data = [tuple(target_dir_favorites_data[x]) for x in range(len(target_dir_favorites_data)) if target_dir_favorites_paths[x] != '']
                     if len(target_dir_favorites_data) > 0:
                         self.target_dir_favorites_data = target_dir_favorites_data
-                        
+
 
     def write_favorites_data_to_file(self):
         default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), 'favorites_settings.json')
@@ -155,7 +155,7 @@ class MasterWindow:
         self.populate_entry_section_overseer(osnav)
         self.populate_master_copy_button(osnav)
 
-    
+
     def initialize_photoimage_library(self):
         filenames = [('master_copy_icon', 'fourfox_icon_remaster_extra_mini.png'), ('delete_icon', 'garbage_tiny.png'), ('favorite_icon', 'black_star_tiny.png')]
         for x in range(len(filenames)):
@@ -522,9 +522,11 @@ class MasterWindow:
         self.origin_x_scrollbar = self.create_origin_x_scrollbar(self.origin_labelframe)
         self.origin_entry_widget = self.create_origin_entry_widget(self.origin_labelframe, self.origin_x_scrollbar)
         self.link_origin_x_scrollbar_to_entry_widget(self.origin_labelframe, self.origin_x_scrollbar, self.origin_entry_widget)
-        self.origin_save_button = self.create_origin_save_button(self.origin_labelframe)
+        self.origin_save_button = self.create_origin_save_button(self.origin_labelframe, self.origin_save_button_command_handler)
         self.origin_select_button = self.create_origin_select_button(self.origin_labelframe, self.origin_select_button_command_handler)
         self.origin_favorites_button = self.create_origin_favorites_button(self.origin_labelframe, self.origin_favorites_button_command)
+        self.origin_save_info_entry, self.origin_save_entry = self.create_origin_save_entry_widget_pair(self.origin_labelframe)
+        self.origin_cancel_button = self.create_origin_cancel_button(self.origin_labelframe, self.origin_cancel_button_command_handler)
         self.origin_favorites_base_frame, self.origin_favorites_x_scrollbar, self.origin_favorites_y_scrollbar, self.origin_favorites_canvas, self.origin_favorites_listbox, self.origin_favorites_inner_frame, self.origin_favorites_option_buttons = self.create_favorites_overlay_omni_overseer((self.dir_listbox.cget('width'), self.dir_listbox.cget('height')), 'origin_favorites_default', self.origin_favorites_data)
         self.origin_favorites_listbox.bind('<Return>', self.origin_select_button_command_handler)
 
@@ -547,19 +549,64 @@ class MasterWindow:
         return origin_entry_widget
 
     
+    def create_origin_save_entry_widget_pair(self, frame):
+        origin_save_info_entry = tk.Entry(frame, width=12, disabledbackground='WHITE', disabledforeground='BLACK')
+        origin_save_info_entry.insert(0, ' SAVE NAME')
+        origin_save_info_entry.configure(state=tk.DISABLED)
+        origin_save_info_entry.grid(column=0, row=0, padx=1, sticky=tk.SW)
+        origin_save_info_entry.lower()
+        origin_save_entry = tk.Entry(frame, width=18, state=tk.DISABLED)
+        origin_save_entry.grid(column=0, row=0, padx=1, sticky=tk.SE)
+        origin_save_entry.lower()
+        return origin_save_info_entry, origin_save_entry
+
+    
     def link_origin_x_scrollbar_to_entry_widget(self, frame, x_scrollbar, entry_widget):
         x_scrollbar.configure(command=entry_widget.xview)
 
     
-    def create_origin_save_button(self, frame):
-        origin_save_button = tk.Button(frame, text="SAVE", font=tk.font.Font(size=8))
+    def create_origin_save_button(self, frame, command_func):
+        origin_save_button = tk.Button(frame, command=command_func, text="SAVE", font=tk.font.Font(size=8))
         origin_save_button.grid(column=1, row=0)
         return origin_save_button
 
     
+    def origin_save_button_command_handler(self):
+        if self.origin_entry_widget.get() == "":
+            return
+        if self.origin_save_entry.cget('state') == tk.DISABLED:
+            self.origin_save_info_entry.lift()
+            self.origin_save_entry.lift()
+            self.origin_save_entry.configure(state=tk.NORMAL)
+            self.origin_save_entry.focus_set()
+            self.origin_cancel_button.lift()
+        elif self.origin_save_entry.cget('state') in [tk.NORMAL, tk.ACTIVE]:
+            if self.origin_save_entry.get() != "":
+                self.append_fav_to_favorites_listbox(self.origin_favorites_listbox, (self.origin_save_entry.get(), self.origin_entry_widget.get()))
+                self.origin_favorites_data.append((self.origin_save_entry.get(), self.origin_entry_widget.get()))
+                self.add_favorites_options_buttons(self.origin_favorites_inner_frame, self.origin_favorites_listbox, self.origin_favorites_option_buttons, "HELLO", 'origin_favorites_default')
+                self.origin_cancel_button.invoke()
+                self.write_favorites_data_to_file()
+
+
+    def create_origin_cancel_button(self, frame, command_func):
+        origin_cancel_button = tk.Button(frame, command=command_func, text="CANCEL", font=tk.font.Font(size=8), bg='red')
+        origin_cancel_button.grid(column=2, row=0)
+        origin_cancel_button.lower()
+        return origin_cancel_button
+
+
+    def origin_cancel_button_command_handler(self):
+        self.origin_save_info_entry.lower()
+        self.origin_save_entry.delete(0, tk.END)
+        self.origin_save_entry.lower()
+        self.origin_save_entry.configure(state=tk.DISABLED)
+        self.origin_cancel_button.lower()
+
+    
     def create_origin_select_button(self, frame, command_func):
         origin_select_button = tk.Button(frame, command=command_func, text='SELECT', font=tk.font.Font(size=8))
-        origin_select_button.grid(column=2, row=0)
+        origin_select_button.grid(column=2, row=0, sticky=tk.EW)
         return origin_select_button
 
 
@@ -637,9 +684,11 @@ class MasterWindow:
         self.target_dir_x_scrollbar = self.create_target_dir_x_scrollbar(self.target_dir_labelframe)
         self.target_dir_entry_widget = self.create_target_dir_entry_widget(self.target_dir_labelframe, self.target_dir_x_scrollbar)
         self.link_target_dir_x_scrollbar_to_entry_widget(self.target_dir_labelframe, self.target_dir_x_scrollbar, self.target_dir_entry_widget)
-        self.target_dir_save_button = self.create_target_dir_save_button(self.target_dir_labelframe)
+        self.target_dir_save_button = self.create_target_dir_save_button(self.target_dir_labelframe, self.target_dir_save_button_command_handler)
         self.target_dir_select_button = self.create_target_dir_select_button(self.target_dir_labelframe, self.target_dir_select_button_command_handler)
         self.target_dir_favorites_button = self.create_target_dir_favorites_button(self.target_dir_labelframe, self.target_dir_favorites_button_command)
+        self.target_dir_save_info_entry, self.target_dir_save_entry = self.create_target_dir_save_entry_widget_pair(self.target_dir_labelframe)
+        self.target_dir_cancel_button = self.create_target_dir_cancel_button(self.target_dir_labelframe, self.target_dir_cancel_button_command_handler)
         self.target_dir_favorites_base_frame, self.target_dir_favorites_x_scrollbar, self.target_dir_favorites_y_scrollbar, self.target_dir_favorites_canvas, self.target_dir_favorites_listbox, self.target_dir_favorites_inner_frame, self.target_dir_favorites_option_buttons = self.create_favorites_overlay_omni_overseer((self.dir_listbox.cget('width'), self.dir_listbox.cget('height')), 'target_dir_favorites_default', self.target_dir_favorites_data)
         self.target_dir_favorites_listbox.bind('<Return>', self.target_dir_select_button_command_handler)
 
@@ -662,19 +711,64 @@ class MasterWindow:
         return target_dir_entry_widget
 
     
+    def create_target_dir_save_entry_widget_pair(self, frame):
+        target_dir_save_info_entry = tk.Entry(frame, width=12, disabledbackground='WHITE', disabledforeground='BLACK')
+        target_dir_save_info_entry.insert(0, ' SAVE NAME')
+        target_dir_save_info_entry.configure(state=tk.DISABLED)
+        target_dir_save_info_entry.grid(column=0, row=0, padx=1, sticky=tk.SW)
+        target_dir_save_info_entry.lower()
+        target_dir_save_entry = tk.Entry(frame, width=18, state=tk.DISABLED)
+        target_dir_save_entry.grid(column=0, row=0, padx=1, sticky=tk.SE)
+        target_dir_save_entry.lower()
+        return target_dir_save_info_entry, target_dir_save_entry
+
+    
     def link_target_dir_x_scrollbar_to_entry_widget(self, frame, x_scrollbar, entry_widget):
         x_scrollbar.configure(command=entry_widget.xview)
 
     
-    def create_target_dir_save_button(self, frame):
-        target_dir_save_button = tk.Button(frame, text="SAVE", font=tk.font.Font(size=8))
+    def create_target_dir_save_button(self, frame, command_func):
+        target_dir_save_button = tk.Button(frame, command=command_func, text="SAVE", font=tk.font.Font(size=8))
         target_dir_save_button.grid(column=1, row=0)
         return target_dir_save_button
 
     
+    def target_dir_save_button_command_handler(self):
+        if self.target_dir_entry_widget.get() == "":
+            return
+        if self.target_dir_save_entry.cget('state') == tk.DISABLED:
+            self.target_dir_save_info_entry.lift()
+            self.target_dir_save_entry.lift()
+            self.target_dir_save_entry.configure(state=tk.NORMAL)
+            self.target_dir_save_entry.focus_set()
+            self.target_dir_cancel_button.lift()
+        elif self.target_dir_save_entry.cget('state') in [tk.NORMAL, tk.ACTIVE]:
+            if self.target_dir_save_entry.get() != "":
+                self.append_fav_to_favorites_listbox(self.target_dir_favorites_listbox, (self.target_dir_save_entry.get(), self.target_dir_entry_widget.get()))
+                self.target_dir_favorites_data.append((self.target_dir_save_entry.get(), self.target_dir_entry_widget.get()))
+                self.add_favorites_options_buttons(self.target_dir_favorites_inner_frame, self.target_dir_favorites_listbox, self.target_dir_favorites_option_buttons, "HELLO", 'origin_favorites_default')
+                self.target_dir_cancel_button.invoke()
+                self.write_favorites_data_to_file()
+
+
+    def create_target_dir_cancel_button(self, frame, command_func):
+        target_dir_cancel_button = tk.Button(frame, command=command_func, text="CANCEL", font=tk.font.Font(size=8), bg='red')
+        target_dir_cancel_button.grid(column=2, row=0)
+        target_dir_cancel_button.lower()
+        return target_dir_cancel_button
+    
+
+    def target_dir_cancel_button_command_handler(self):
+        self.target_dir_save_info_entry.lower()
+        self.target_dir_save_entry.delete(0, tk.END)
+        self.target_dir_save_entry.lower()
+        self.target_dir_save_entry.configure(state=tk.DISABLED)
+        self.target_dir_cancel_button.lower()
+    
+
     def create_target_dir_select_button(self, frame, command_func):
         target_dir_select_button = tk.Button(frame, command=command_func, text='SELECT', font=tk.font.Font(size=8))
-        target_dir_select_button.grid(column=2, row=0)
+        target_dir_select_button.grid(column=2, row=0, sticky=tk.EW)
         return target_dir_select_button
 
 
@@ -795,6 +889,7 @@ class MasterWindow:
             favorites_data.insert(0, favorites_data.pop(listbox_index))
             listbox_widget.itemconfigure(0, bg='black', fg='gold')
             setattr(self, default_attr, favorites_data[0])
+            self.write_favorites_data_to_file()
         return favorites_default_buttons_command
 
     
@@ -823,6 +918,10 @@ class MasterWindow:
         return favorites_listbox
 
 
+    def append_fav_to_favorites_listbox(self, listbox, fav_data):
+        listbox.insert(tk.END, f" {fav_data[0]} «{fav_data[1]}» ")
+
+
     def link_favorites_scrollbars_to_listbox(self, listbox, x_scrollbar, y_scrollbar):
         x_scrollbar.configure(command=listbox.xview)
         y_scrollbar.configure(command=listbox.yview)
@@ -843,9 +942,9 @@ class MasterWindow:
         for x in range(len(favorites_buttons_list))]
         return favorites_buttons_list
 
-    
+
     def add_favorites_options_buttons(self, frame, listbox_widget, favorites_buttons_list, favorites_data, default_attr):
-        if listbox_widget.size() < listbox_widget.cget('height'):
+        if listbox_widget.size() < listbox_widget.cget('height'):        
             favorites_buttons_list.append((self.create_favorites_delete_button(frame, 0, len(favorites_buttons_list)), self.create_favorites_default_button(frame, 1, len(favorites_buttons_list))))
             favorites_buttons_list[-1][0].configure(command=self.favorites_delete_buttons_command_factory_func(frame, favorites_buttons_list[-1][0], favorites_buttons_list[-1][1], listbox_widget, favorites_buttons_list, favorites_data))
             favorites_buttons_list[-1][0].configure(command=self.favorites_default_buttons_command_factory_func(frame, favorites_buttons_list[-1][0], listbox_widget, favorites_buttons_list, favorites_data, default_attr))
