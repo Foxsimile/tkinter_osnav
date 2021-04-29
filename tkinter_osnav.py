@@ -872,6 +872,7 @@ class MasterWindow:
             del favorites_data[listbox_index]
             if listbox_widget.size() < listbox_widget.cget('height'):
                 self.remove_favorites_options_buttons(favorites_buttons_list)
+            self.write_favorites_data_to_file()
         return favorites_delete_buttons_command
 
     
