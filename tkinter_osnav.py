@@ -27,6 +27,7 @@ class MasterWindow:
         self.photoimage_dict = {}
         self.initialize_photoimage_library()
         self.currently_active_listbox_obj = None
+        self.save_data_filename = 'FAKE_FILENAME.json' #'favorites_settings.json'
         self.filename_default = None
         self.origin_favorites_data = None
         self.origin_favorites_default = None
@@ -111,43 +112,50 @@ class MasterWindow:
 
 
     def load_saved_favorites_data(self):
-        default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), 'favorites_settings.json')
-        loaded_data = self.osnav.json_file_loader(self.osnav.main_script_dir, 'favorites_settings.json', ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
+        default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), self.save_data_filename)
+        loaded_data = self.osnav.json_file_loader(self.osnav.main_script_dir, self.save_data_filename, ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
         
-        if loaded_data != None:
-            if isinstance(loaded_data, dict):
-                filename_default = loaded_data.get('filename_default', None)
-                if isinstance(filename_default, str):
-                    self.filename_default = filename_default
-                origin_favorites_default = loaded_data.get('origin_default', None)
-                if isinstance(origin_favorites_default, list) and len(origin_favorites_default) == 2 and isinstance(origin_favorites_default[0], str) and isinstance(origin_favorites_default[1], str):
+        if loaded_data == None:
+            loaded_data = self.create_blank_favorites_data()
+
+        if isinstance(loaded_data, dict):
+            filename_default = loaded_data.get('filename_default', None)
+            if isinstance(filename_default, str):
+                self.filename_default = filename_default
+            origin_favorites_default = loaded_data.get('origin_default', None)
+            if isinstance(origin_favorites_default, list) and len(origin_favorites_default) == 2 and isinstance(origin_favorites_default[0], str) and isinstance(origin_favorites_default[1], str):
+                if len(origin_favorites_default) > 0 and origin_favorites_default[1] != '':
                     origin_favorites_default = (origin_favorites_default[0], self.osnav.verify_paths(origin_favorites_default[1], single_path=True))
-                    if origin_favorites_default[1] != '':
-                        self.origin_favorites_default = origin_favorites_default
-                target_dir_favorites_default = loaded_data.get('target_default', None)
-                if isinstance(target_dir_favorites_default, list) and len(target_dir_favorites_default) == 2 and isinstance(target_dir_favorites_default[0], str) and isinstance(target_dir_favorites_default[1], str):
+                self.origin_favorites_default = origin_favorites_default
+            target_dir_favorites_default = loaded_data.get('target_default', None)
+            if isinstance(target_dir_favorites_default, list) and len(target_dir_favorites_default) == 2 and isinstance(target_dir_favorites_default[0], str) and isinstance(target_dir_favorites_default[1], str):
+                if len(target_dir_favorites_default) > 0 and target_dir_favorites_default[1] != '':
                     target_dir_favorites_default = (target_dir_favorites_default[0], self.osnav.verify_paths(target_dir_favorites_default[1], single_path=True))
-                    if target_dir_favorites_default[1] != '':
-                        self.target_dir_favorites_default = target_dir_favorites_default
-                origin_favorites_data = loaded_data.get('origin_favorites', None)
-                if isinstance(origin_favorites_data, list):
+                self.target_dir_favorites_default = target_dir_favorites_default
+            origin_favorites_data = loaded_data.get('origin_favorites', None)
+            if isinstance(origin_favorites_data, list):
+                if len(origin_favorites_data) > 0:
                     origin_favorites_data = [origin_favorites_data[x] for x in range(len(origin_favorites_data)) if len(origin_favorites_data[x]) == 2 and isinstance(origin_favorites_data[x][0], str) and isinstance(origin_favorites_data[x][1], str)]
                     origin_favorites_paths = self.osnav.verify_paths([origin_favorites_data[x][1] for x in range(len(origin_favorites_data))])
                     origin_favorites_data = [tuple(origin_favorites_data[x]) for x in range(len(origin_favorites_data)) if origin_favorites_paths[x] != '']
-                    if len(origin_favorites_data) > 0:
-                        self.origin_favorites_data = origin_favorites_data
-                target_dir_favorites_data = loaded_data.get('target_favorites', None)
-                if isinstance(target_dir_favorites_data, list):
+                self.origin_favorites_data = origin_favorites_data
+            target_dir_favorites_data = loaded_data.get('target_favorites', None)
+            if isinstance(target_dir_favorites_data, list):
+                if len(target_dir_favorites_data) > 0:
                     target_dir_favorites_data = [target_dir_favorites_data[x] for x in range(len(target_dir_favorites_data)) if len(target_dir_favorites_data[x]) == 2 and isinstance(target_dir_favorites_data[x][0], str) and isinstance(target_dir_favorites_data[x][1], str)]
                     target_dir_favorites_paths = self.osnav.verify_paths([target_dir_favorites_data[x][1] for x in range(len(target_dir_favorites_data))])
                     target_dir_favorites_data = [tuple(target_dir_favorites_data[x]) for x in range(len(target_dir_favorites_data)) if target_dir_favorites_paths[x] != '']
-                    if len(target_dir_favorites_data) > 0:
-                        self.target_dir_favorites_data = target_dir_favorites_data
+                self.target_dir_favorites_data = target_dir_favorites_data
+
+
+    def create_blank_favorites_data(self):
+        favorites_dict = {'filename_default': "", 'origin_default': [], 'target_default': [], 'origin_favorites': [], 'target_favorites': []}
+        return favorites_dict
 
 
     def write_favorites_data_to_file(self):
-        default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), 'favorites_settings.json')
-        self.osnav.json_file_writer(self.osnav.main_script_dir, 'favorites_settings.json', data=self.aggregate_favorites_data(), ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
+        default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), self.save_data_filename)
+        self.osnav.json_file_writer(self.osnav.main_script_dir, self.save_data_filename, data=self.aggregate_favorites_data(), ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
 
     
     def aggregate_favorites_data(self):
@@ -924,9 +932,10 @@ class MasterWindow:
     def create_favorites_overlay_listbox(self, frame, listbox_width_height, x_scrollbar, listbox_grid, favorites_data, default_attr):
         favorites_listbox = tk.Listbox(frame, width=listbox_width_height[0], height=listbox_width_height[1], xscrollcommand=x_scrollbar.set) #, font=self.op_sys_specs['font'])
         self.activate_widget_grid_from_grid_info(favorites_listbox, listbox_grid)
-        [favorites_listbox.insert(x, f" {favorites_data[x][0]} «{favorites_data[x][1]}» ") for x in range(len(favorites_data))]
-        if getattr(self, default_attr) == favorites_data[0]:
-            favorites_listbox.itemconfigure(0, bg='black', fg='gold')
+        if len(favorites_data) > 0:
+            [favorites_listbox.insert(x, f" {favorites_data[x][0]} «{favorites_data[x][1]}» ") for x in range(len(favorites_data))]
+            if getattr(self, default_attr) == favorites_data[0]:
+                favorites_listbox.itemconfigure(0, bg='black', fg='gold')
         return favorites_listbox
 
 
@@ -948,10 +957,12 @@ class MasterWindow:
 
 
     def create_favorites_options_buttons(self, frame, listbox_widget, delete_command_factory_func, default_command_factory_func, favorites_data, default_attr):
-        favorites_buttons_list = [(self.create_favorites_delete_button(frame, 0, x), self.create_favorites_default_button(frame, 1, x)) for x in range(listbox_widget.cget('height'))]
-        [(favorites_buttons_list[x][0].configure(command=delete_command_factory_func(frame, favorites_buttons_list[x][0], favorites_buttons_list[x][1], listbox_widget, favorites_buttons_list, favorites_data)),
-        favorites_buttons_list[x][1].configure(command=default_command_factory_func(frame, favorites_buttons_list[x][1], listbox_widget, favorites_buttons_list, favorites_data, default_attr)))
-        for x in range(len(favorites_buttons_list))]
+        if len(favorites_data) > 0:
+            favorites_buttons_list = [(self.create_favorites_delete_button(frame, 0, x), self.create_favorites_default_button(frame, 1, x)) for x in range(listbox_widget.cget('height')) if x <= len(favorites_data)]
+            [(favorites_buttons_list[x][0].configure(command=delete_command_factory_func(frame, favorites_buttons_list[x][0], favorites_buttons_list[x][1], listbox_widget, favorites_buttons_list, favorites_data)),
+            favorites_buttons_list[x][1].configure(command=default_command_factory_func(frame, favorites_buttons_list[x][1], listbox_widget, favorites_buttons_list, favorites_data, default_attr))) for x in range(len(favorites_buttons_list))]
+        else:
+            favorites_buttons_list = []
         return favorites_buttons_list
 
 
@@ -1037,8 +1048,6 @@ class MasterWindow:
 
     
     def copy_button_command(self):
-        self.write_favorites_data_to_file()
-        return
         copy_path = self.origin_selected
         target_dir_selected = self.target_dir_selected
         new_folder_name = self.filename_entry_widget.get()
