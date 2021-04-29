@@ -53,7 +53,11 @@ class MasterWindow:
         self.origin_labelframe = None
         self.origin_x_scrollbar = None
         self.origin_entry_widget = None
+        self.origin_save_entry = None
+        self.origin_save_info_entry = None
+        self.origin_save_button = None
         self.origin_select_button = None
+        self.origin_cancel_button = None
         self.origin_selected = None
         self.origin_favorites_button = None
         self.origin_favorites_base_frame = None
@@ -66,9 +70,12 @@ class MasterWindow:
         self.target_dir_labelframe = None
         self.target_dir_x_scrollbar = None
         self.target_dir_entry_widget = None
+        self.target_dir_save_entry = None
+        self.target_dir_save_info_entry = None
         self.target_dir_save_button = None
         self.target_dir_select_button = None
         self.target_dir_selected = None
+        self.target_dir_cancel_button = None
         self.target_dir_favorites_button = None
         self.target_dir_favorites_base_frame = None
         self.target_dir_favorites_x_scrollbar = None
