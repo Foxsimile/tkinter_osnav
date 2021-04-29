@@ -580,6 +580,7 @@ class MasterWindow:
             self.origin_save_entry.configure(state=tk.NORMAL)
             self.origin_save_entry.focus_set()
             self.origin_cancel_button.lift()
+            self.origin_save_button.configure(bg='lime')
         elif self.origin_save_entry.cget('state') in [tk.NORMAL, tk.ACTIVE]:
             if self.origin_save_entry.get() != "":
                 self.append_fav_to_favorites_listbox(self.origin_favorites_listbox, (self.origin_save_entry.get(), self.origin_entry_widget.get()))
@@ -602,6 +603,7 @@ class MasterWindow:
         self.origin_save_entry.lower()
         self.origin_save_entry.configure(state=tk.DISABLED)
         self.origin_cancel_button.lower()
+        self.origin_save_button.configure(bg='SystemButtonFace')
 
     
     def create_origin_select_button(self, frame, command_func):
@@ -742,6 +744,7 @@ class MasterWindow:
             self.target_dir_save_entry.configure(state=tk.NORMAL)
             self.target_dir_save_entry.focus_set()
             self.target_dir_cancel_button.lift()
+            self.target_dir_save_button.configure(bg='lime')
         elif self.target_dir_save_entry.cget('state') in [tk.NORMAL, tk.ACTIVE]:
             if self.target_dir_save_entry.get() != "":
                 self.append_fav_to_favorites_listbox(self.target_dir_favorites_listbox, (self.target_dir_save_entry.get(), self.target_dir_entry_widget.get()))
@@ -764,6 +767,7 @@ class MasterWindow:
         self.target_dir_save_entry.lower()
         self.target_dir_save_entry.configure(state=tk.DISABLED)
         self.target_dir_cancel_button.lower()
+        self.target_dir_save_button.configure(bg='SystemButtonFace')
     
 
     def create_target_dir_select_button(self, frame, command_func):
