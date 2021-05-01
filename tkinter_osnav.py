@@ -907,13 +907,13 @@ class MasterWindow:
                 listbox_widget.itemconfigure(0, bg='white', fg='black')
                 if listbox_index == 0:
                     setattr(self, default_attr, None)
-                    return
-            default_text = listbox_widget.get(listbox_index)
-            listbox_widget.delete(listbox_index)
-            listbox_widget.insert(0, default_text)
-            favorites_data.insert(0, favorites_data.pop(listbox_index))
-            listbox_widget.itemconfigure(0, bg='black', fg='gold')
-            setattr(self, default_attr, favorites_data[0])
+            else:
+                default_text = listbox_widget.get(listbox_index)
+                listbox_widget.delete(listbox_index)
+                listbox_widget.insert(0, default_text)
+                favorites_data.insert(0, favorites_data.pop(listbox_index))
+                listbox_widget.itemconfigure(0, bg='black', fg='gold')
+                setattr(self, default_attr, favorites_data[0])
             self.write_favorites_data_to_file()
         return favorites_default_buttons_command
 
@@ -975,7 +975,7 @@ class MasterWindow:
         if listbox_widget.size() < listbox_widget.cget('height'):        
             favorites_buttons_list.append((self.create_favorites_delete_button(frame, 0, len(favorites_buttons_list)), self.create_favorites_default_button(frame, 1, len(favorites_buttons_list))))
             favorites_buttons_list[-1][0].configure(command=self.favorites_delete_buttons_command_factory_func(frame, favorites_buttons_list[-1][0], favorites_buttons_list[-1][1], listbox_widget, favorites_buttons_list, favorites_data))
-            favorites_buttons_list[-1][0].configure(command=self.favorites_default_buttons_command_factory_func(frame, favorites_buttons_list[-1][0], listbox_widget, favorites_buttons_list, favorites_data, default_attr))
+            favorites_buttons_list[-1][1].configure(command=self.favorites_default_buttons_command_factory_func(frame, favorites_buttons_list[-1][1], listbox_widget, favorites_buttons_list, favorites_data, default_attr))
 
 
     def remove_favorites_options_buttons(self, favorites_buttons_list):
