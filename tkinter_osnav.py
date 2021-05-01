@@ -28,6 +28,7 @@ class MasterWindow:
         self.initialize_photoimage_library()
         self.currently_active_listbox_obj = None
         self.save_data_filename = 'favorites_settings.json'
+        self.save_data_filepath = None
         self.filename_default = None
         self.origin_favorites_data = None
         self.origin_favorites_default = None
@@ -112,10 +113,11 @@ class MasterWindow:
 
 
     def load_saved_favorites_data(self):
-        default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), self.save_data_filename)
+        default_dir = self.osnav.join_paths(self.osnav.main_script_dir, 'settings')
         if self.osnav.ensure_dir_exists(default_dir) != True:
             exit(-1)
-        loaded_data = self.osnav.json_file_loader(self.osnav.main_script_dir, self.save_data_filename, ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
+        self.save_data_filepath = self.osnav.join_paths(default_dir, self.save_data_filename)
+        loaded_data = self.osnav.json_file_loader(self.osnav.main_script_dir, self.save_data_filename, ignored_dirs=['.git', '__pycache__'], default_dir=self.save_data_filepath)
         
         if loaded_data == None:
             loaded_data = self.create_blank_favorites_data()
@@ -603,7 +605,7 @@ class MasterWindow:
             if self.origin_save_entry.get() != "":
                 self.append_fav_to_favorites_listbox(self.origin_favorites_listbox, (self.origin_save_entry.get(), self.origin_entry_widget.get()))
                 self.origin_favorites_data.append((self.origin_save_entry.get(), self.origin_entry_widget.get()))
-                self.add_favorites_options_buttons(self.origin_favorites_inner_frame, self.origin_favorites_listbox, self.origin_favorites_option_buttons, "HELLO", 'origin_favorites_default')
+                self.add_favorites_options_buttons(self.origin_favorites_inner_frame, self.origin_favorites_listbox, self.origin_favorites_option_buttons, self.origin_favorites_data, 'origin_favorites_default')
                 self.origin_cancel_button.invoke()
                 self.write_favorites_data_to_file()
 
@@ -767,7 +769,7 @@ class MasterWindow:
             if self.target_dir_save_entry.get() != "":
                 self.append_fav_to_favorites_listbox(self.target_dir_favorites_listbox, (self.target_dir_save_entry.get(), self.target_dir_entry_widget.get()))
                 self.target_dir_favorites_data.append((self.target_dir_save_entry.get(), self.target_dir_entry_widget.get()))
-                self.add_favorites_options_buttons(self.target_dir_favorites_inner_frame, self.target_dir_favorites_listbox, self.target_dir_favorites_option_buttons, "HELLO", 'origin_favorites_default')
+                self.add_favorites_options_buttons(self.target_dir_favorites_inner_frame, self.target_dir_favorites_listbox, self.target_dir_favorites_option_buttons, self.target_dir_favorites_data, 'origin_favorites_default')
                 self.target_dir_cancel_button.invoke()
                 self.write_favorites_data_to_file()
 
@@ -961,7 +963,7 @@ class MasterWindow:
 
     def create_favorites_options_buttons(self, frame, listbox_widget, delete_command_factory_func, default_command_factory_func, favorites_data, default_attr):
         if len(favorites_data) > 0:
-            favorites_buttons_list = [(self.create_favorites_delete_button(frame, 0, x), self.create_favorites_default_button(frame, 1, x)) for x in range(listbox_widget.cget('height')) if x <= len(favorites_data)]
+            favorites_buttons_list = [(self.create_favorites_delete_button(frame, 0, x), self.create_favorites_default_button(frame, 1, x)) for x in range(listbox_widget.cget('height')) if x < len(favorites_data)]
             [(favorites_buttons_list[x][0].configure(command=delete_command_factory_func(frame, favorites_buttons_list[x][0], favorites_buttons_list[x][1], listbox_widget, favorites_buttons_list, favorites_data)),
             favorites_buttons_list[x][1].configure(command=default_command_factory_func(frame, favorites_buttons_list[x][1], listbox_widget, favorites_buttons_list, favorites_data, default_attr))) for x in range(len(favorites_buttons_list))]
         else:
