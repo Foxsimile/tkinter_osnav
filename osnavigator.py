@@ -184,3 +184,12 @@ class OSNavigator:
         if len(verified_paths) == 0:
             return None
         return verified_paths
+
+
+    def ensure_dir_exists(self, dir_path):
+        try:
+            if self.dir_exists(dir_path) == False:
+                os.mkdir(dir_path)
+        except Exception as err:
+            return err
+        return True

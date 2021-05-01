@@ -27,7 +27,7 @@ class MasterWindow:
         self.photoimage_dict = {}
         self.initialize_photoimage_library()
         self.currently_active_listbox_obj = None
-        self.save_data_filename = 'FAKE_FILENAME.json' #'favorites_settings.json'
+        self.save_data_filename = 'favorites_settings.json'
         self.filename_default = None
         self.origin_favorites_data = None
         self.origin_favorites_default = None
@@ -113,6 +113,8 @@ class MasterWindow:
 
     def load_saved_favorites_data(self):
         default_dir = self.osnav.join_paths(self.osnav.join_paths(self.osnav.main_script_dir, 'settings'), self.save_data_filename)
+        if self.osnav.ensure_dir_exists(default_dir) != True:
+            exit(-1)
         loaded_data = self.osnav.json_file_loader(self.osnav.main_script_dir, self.save_data_filename, ignored_dirs=['.git', '__pycache__'], default_dir=default_dir)
         
         if loaded_data == None:
@@ -495,6 +497,7 @@ class MasterWindow:
         x_scrollbar.config(command=listbox.xview)
         frame.grid(column=0, row=2, columnspan=2)
     
+
     def create_dir_active_intvar(self, active_int):
         dir_active_intvar = tk.IntVar()
         self.set_dir_active_intvar(dir_active_intvar, active_int)
