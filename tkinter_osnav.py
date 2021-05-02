@@ -92,6 +92,16 @@ class MasterWindow:
         self.load_saved_favorites_data()
         self.populate_master_overseer(self.osnav)
 
+        self.display_focus_data(self.master)
+
+
+    def display_focus_data(self, widget):
+        print(f"\nFOCUS_WIDGET:{widget.focus_get()}")
+        mouse_x, mouse_y = widget.winfo_pointerxy()
+        mouse_focused_widget = widget.winfo_containing(mouse_x, mouse_y)
+        print(f"MOUSE_WIDGET:{mouse_focused_widget}")
+        widget.after(1000, self.display_focus_data, widget)
+
 
     def create_master(self):
         master = tk.Tk()
@@ -628,6 +638,8 @@ class MasterWindow:
         self.origin_save_entry.configure(state=tk.DISABLED)
         self.origin_cancel_button.lower()
         self.origin_entry_widget.configure(xscrollcommand=self.origin_x_scrollbar.set)
+        self.cwd_textbox.focus_set()
+        self.cwd_textbox.event_generate('<End>')
         self.origin_save_button.configure(bg='SystemButtonFace')
 
     
@@ -797,6 +809,8 @@ class MasterWindow:
         self.target_dir_save_entry.configure(state=tk.DISABLED)
         self.target_dir_cancel_button.lower()
         self.target_dir_entry_widget.configure(xscrollcommand=self.target_dir_x_scrollbar.set)
+        self.cwd_textbox.focus_set()
+        self.cwd_textbox.event_generate('<End>')
         self.target_dir_save_button.configure(bg='SystemButtonFace')
     
 
