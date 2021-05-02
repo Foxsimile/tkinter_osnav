@@ -22,6 +22,7 @@ from shutilizer import Shutilizer
 class MasterWindow:
     def __init__(self):
         self.master = self.create_master()
+        self.default_color = self.master.cget('bg')
         self.osnav = OSNavigator()
         self.op_sys_specs = self.set_operating_system_specifics(self.osnav.op_sys)
         self.photoimage_dict = {}
@@ -242,6 +243,7 @@ class MasterWindow:
         cwd_textbox.grid(column=0, row=0, sticky=tk.W)
         cwd_textbox = self.update_cwd_textbox_content(cwd_textbox, cwd_stringvar)
         cwd_textbox_bindings = [('<FocusIn>', self.cwd_textbox_focus_in_handler), ('<FocusOut>', self.cwd_textbox_focus_out_handler),
+                                ('<Up>', self.cwd_textbox_keypress_handler), ('<Down>', self.cwd_textbox_keypress_handler),
                                 ('<Left>', self.cwd_textbox_keypress_handler), ('<Right>', self.cwd_textbox_keypress_handler), ('<ButtonRelease>', self.cwd_textbox_button_handler),
                                 ('<Home>', self.cwd_textbox_keypress_handler), ('<End>', self.cwd_textbox_keypress_handler), ('<Return>', self.cwd_textbox_keypress_handler)]
         [cwd_textbox.bind(cwd_textbox_bindings[x][0], cwd_textbox_bindings[x][1]) for x in range(len(cwd_textbox_bindings))]
@@ -254,6 +256,7 @@ class MasterWindow:
         [cwd_textbox.insert(tk.END, args[x]) for x in range(len(args))]
         cwd_textbox.configure(state=tk.DISABLED)
         cwd_textbox.see(tk.END)
+        self.cwd_textbox_highlight_end(cwd_textbox, target_end=-1, return_focus=1)
         return cwd_textbox
 
     
@@ -271,9 +274,26 @@ class MasterWindow:
         textbox.tag_delete(tag_name)
 
     
+    def cwd_textbox_highlight_end(self, textbox, *, target_end, return_focus=0):
+        if return_focus:
+            current_focus_obj = self.master.focus_get()
+        if target_end == 0:
+            textbox.focus_set()
+            textbox.event_generate('<Home>')
+        elif target_end == -1:
+            textbox.focus_set()
+            textbox.event_generate('<End>')
+        if return_focus:
+            if current_focus_obj != None:
+                current_focus_obj.focus_set()
+
+    
     def cwd_textbox_keypress_handler(self, event_obj):
         if event_obj.keysym in ['Left', 'Right', 'Home', 'End']:
             self.cwd_textbox_dir_nav_event_handler(event_obj)
+        elif event_obj.keysym in ['Up', 'Down']:
+            self.currently_active_listbox_obj.focus_set()
+            self.currently_active_listbox_obj.event_generate(f'<{event_obj.keysym}>')
         elif event_obj.keysym in ['Return']:
             self.cwd_textbox_chdir_nav_event_handler(event_obj)
             self.currently_active_listbox_obj.focus_set()
@@ -289,7 +309,8 @@ class MasterWindow:
 
 
     def cwd_textbox_focus_out_handler(self, event_obj):
-        self.cwd_textbox.tag_delete('cwd_sel_tag')
+        #self.cwd_textbox.tag_delete('cwd_sel_tag')
+        pass
 
     
     def cwd_textbox_dir_nav_event_handler(self, event_obj):
@@ -414,6 +435,10 @@ class MasterWindow:
             dir_listbox, updated_index = self.dir_listbox_keypress_arrowkeys_handler(dir_listbox, osnav, cwd_scan, cwd_name, dir_active_intvar, event_obj)
         elif event_obj.keysym in ['Next', 'Prior']:
             return
+        elif event_obj.keysym in ['Left', 'Right']:
+            self.cwd_textbox.focus_set()
+            self.cwd_textbox.event_generate(f'<{event_obj.keysym}>')
+            return "break"
         dir_active_intvar = self.set_dir_active_intvar(dir_active_intvar, updated_index)
         
 
@@ -468,7 +493,7 @@ class MasterWindow:
         dir_listbox = tk.Listbox(frame, yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set, width=25, height=15)
         dir_listbox = self.get_dir_listbox_content(dir_listbox, osnav)
         dir_listbox.grid(column=0, row=1, sticky=tk.W)
-        keypress_event_list = ['<KeyPress-Return>', '<KeyPress-BackSpace>', '<KeyPress-Up>', '<KeyPress-Down>', '<Next>', '<Prior>']
+        keypress_event_list = ['<KeyPress-Return>', '<KeyPress-BackSpace>', '<KeyPress-Up>', '<KeyPress-Down>', '<Next>', '<Prior>', '<Left>', '<Right>']
         [dir_listbox.bind(keypress_event_list[x], event_func) for x in range(len(keypress_event_list))]
         return dir_listbox
 
@@ -630,7 +655,7 @@ class MasterWindow:
         self.origin_entry_widget.configure(xscrollcommand=self.origin_x_scrollbar.set)
         self.cwd_textbox.focus_set()
         self.cwd_textbox.event_generate('<End>')
-        self.origin_save_button.configure(bg='SystemButtonFace')
+        self.origin_save_button.configure(bg=self.default_color)
 
     
     def create_origin_select_button(self, frame, command_func):
@@ -668,7 +693,7 @@ class MasterWindow:
             self.currently_active_listbox_obj = self.dir_listbox
             self.origin_favorites_base_frame.lower()
             self.origin_favorites_button.configure(relief=tk.RAISED)
-            self.origin_favorites_button.configure(bg='SystemButtonFace')
+            self.origin_favorites_button.configure(bg=self.default_color)
         self.zero_listbox_sel_and_change_listbox_focus()
         
     
@@ -801,7 +826,7 @@ class MasterWindow:
         self.target_dir_entry_widget.configure(xscrollcommand=self.target_dir_x_scrollbar.set)
         self.cwd_textbox.focus_set()
         self.cwd_textbox.event_generate('<End>')
-        self.target_dir_save_button.configure(bg='SystemButtonFace')
+        self.target_dir_save_button.configure(bg=self.default_color)
     
 
     def create_target_dir_select_button(self, frame, command_func):
@@ -839,7 +864,7 @@ class MasterWindow:
             self.currently_active_listbox_obj = self.dir_listbox
             self.target_dir_favorites_base_frame.lower()
             self.target_dir_favorites_button.configure(relief=tk.RAISED)
-            self.target_dir_favorites_button.configure(bg='SystemButtonFace')
+            self.target_dir_favorites_button.configure(bg=self.default_color)
         self.zero_listbox_sel_and_change_listbox_focus()
 
     
