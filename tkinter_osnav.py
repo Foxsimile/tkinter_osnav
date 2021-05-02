@@ -92,16 +92,6 @@ class MasterWindow:
         self.load_saved_favorites_data()
         self.populate_master_overseer(self.osnav)
 
-        self.display_focus_data(self.master)
-
-
-    def display_focus_data(self, widget):
-        print(f"\nFOCUS_WIDGET:{widget.focus_get()}")
-        mouse_x, mouse_y = widget.winfo_pointerxy()
-        mouse_focused_widget = widget.winfo_containing(mouse_x, mouse_y)
-        print(f"MOUSE_WIDGET:{mouse_focused_widget}")
-        widget.after(1000, self.display_focus_data, widget)
-
 
     def create_master(self):
         master = tk.Tk()
