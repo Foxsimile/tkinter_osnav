@@ -601,12 +601,16 @@ class MasterWindow:
             self.origin_save_entry.focus_set()
             self.origin_cancel_button.lift()
             self.origin_save_button.configure(bg='lime')
+            self.origin_save_info_entry.configure(xscrollcommand=self.origin_x_scrollbar.set)
         elif self.origin_save_entry.cget('state') in [tk.NORMAL, tk.ACTIVE]:
             if self.origin_save_entry.get() != "":
                 self.append_fav_to_favorites_listbox(self.origin_favorites_listbox, (self.origin_save_entry.get(), self.origin_entry_widget.get()))
                 self.origin_favorites_data.append((self.origin_save_entry.get(), self.origin_entry_widget.get()))
                 self.add_favorites_options_buttons(self.origin_favorites_inner_frame, self.origin_favorites_listbox, self.origin_favorites_option_buttons, self.origin_favorites_data, 'origin_favorites_default')
                 self.origin_cancel_button.invoke()
+                self.origin_entry_widget.configure(state=tk.NORMAL)
+                self.origin_entry_widget.delete(0, tk.END)
+                self.origin_entry_widget.configure(state=tk.DISABLED)
                 self.write_favorites_data_to_file()
 
 
@@ -623,6 +627,7 @@ class MasterWindow:
         self.origin_save_entry.lower()
         self.origin_save_entry.configure(state=tk.DISABLED)
         self.origin_cancel_button.lower()
+        self.origin_entry_widget.configure(xscrollcommand=self.origin_x_scrollbar.set)
         self.origin_save_button.configure(bg='SystemButtonFace')
 
     
@@ -765,12 +770,16 @@ class MasterWindow:
             self.target_dir_save_entry.focus_set()
             self.target_dir_cancel_button.lift()
             self.target_dir_save_button.configure(bg='lime')
+            self.target_dir_save_info_entry.configure(xscrollcommand=self.target_dir_x_scrollbar.set)
         elif self.target_dir_save_entry.cget('state') in [tk.NORMAL, tk.ACTIVE]:
             if self.target_dir_save_entry.get() != "":
                 self.append_fav_to_favorites_listbox(self.target_dir_favorites_listbox, (self.target_dir_save_entry.get(), self.target_dir_entry_widget.get()))
                 self.target_dir_favorites_data.append((self.target_dir_save_entry.get(), self.target_dir_entry_widget.get()))
                 self.add_favorites_options_buttons(self.target_dir_favorites_inner_frame, self.target_dir_favorites_listbox, self.target_dir_favorites_option_buttons, self.target_dir_favorites_data, 'origin_favorites_default')
                 self.target_dir_cancel_button.invoke()
+                self.target_dir_entry_widget.configure(state=tk.NORMAL)
+                self.target_dir_entry_widget.delete(0, tk.END)
+                self.target_dir_entry_widget.configure(state=tk.DISABLED)
                 self.write_favorites_data_to_file()
 
 
@@ -787,6 +796,7 @@ class MasterWindow:
         self.target_dir_save_entry.lower()
         self.target_dir_save_entry.configure(state=tk.DISABLED)
         self.target_dir_cancel_button.lower()
+        self.target_dir_entry_widget.configure(xscrollcommand=self.target_dir_x_scrollbar.set)
         self.target_dir_save_button.configure(bg='SystemButtonFace')
     
 
