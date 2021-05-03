@@ -241,12 +241,12 @@ class MasterWindow:
     def create_cwd_textbox(self, frame, cwd_stringvar, scrollbar):
         cwd_textbox = tk.Text(frame, xscrollcommand=scrollbar.set, relief=tk.GROOVE, wrap=tk.NONE, cursor='hand2', selectbackground='white', selectforeground='black', insertwidth=3, height=1, width=40)
         cwd_textbox.grid(column=0, row=0, sticky=tk.W)
-        cwd_textbox = self.update_cwd_textbox_content(cwd_textbox, cwd_stringvar)
         cwd_textbox_bindings = [('<FocusIn>', self.cwd_textbox_focus_in_handler), ('<FocusOut>', self.cwd_textbox_focus_out_handler),
                                 ('<Up>', self.cwd_textbox_keypress_handler), ('<Down>', self.cwd_textbox_keypress_handler),
                                 ('<Left>', self.cwd_textbox_keypress_handler), ('<Right>', self.cwd_textbox_keypress_handler), ('<ButtonRelease>', self.cwd_textbox_button_handler),
                                 ('<Home>', self.cwd_textbox_keypress_handler), ('<End>', self.cwd_textbox_keypress_handler), ('<Return>', self.cwd_textbox_keypress_handler)]
         [cwd_textbox.bind(cwd_textbox_bindings[x][0], cwd_textbox_bindings[x][1]) for x in range(len(cwd_textbox_bindings))]
+        cwd_textbox = self.update_cwd_textbox_content(cwd_textbox, cwd_stringvar)
         return cwd_textbox
 
 
