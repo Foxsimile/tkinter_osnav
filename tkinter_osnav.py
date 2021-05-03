@@ -94,6 +94,7 @@ class MasterWindow:
         self.populate_master_overseer(self.osnav)
 
 
+
     def create_master(self):
         master = tk.Tk()
         master.geometry('475x350')
@@ -173,6 +174,7 @@ class MasterWindow:
         self.populate_master_cwd_label(osnav)
         self.populate_master_dir_listbox(osnav)
         self.populate_entry_section_overseer(osnav)
+        self.cwd_textbox_highlight_end(self.cwd_textbox, target_end=-1, return_focus=1)
         self.populate_master_copy_button(osnav)
 
 
