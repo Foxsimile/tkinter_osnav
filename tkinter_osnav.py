@@ -552,7 +552,7 @@ class MasterWindow:
     def populate_entry_section_overseer(self, osnav):
         self.entry_section_parent_frame = self.create_entry_section_parent_frame(self.master)
         self.populate_master_origin_entry_widget(osnav, self.entry_section_parent_frame)
-        self.populate_master_filename_entry_widget(osnav, self.entry_section_parent_frame)
+        self.populate_master_filename_entry_widget(osnav, self.entry_section_parent_frame, self.filename_default)
         self.populate_master_target_dir_entry_widget(osnav, self.entry_section_parent_frame)
 
     
@@ -560,6 +560,50 @@ class MasterWindow:
         entry_section_parent_frame = tk.Frame(frame)
         entry_section_parent_frame.grid(column=1, row=2, pady=10, sticky=tk.N)
         return entry_section_parent_frame
+
+    
+    def populate_master_filename_entry_widget(self, osnav, parent_frame, default_filename):
+        self.filename_labelframe = self.create_filename_labelframe(parent_frame)
+        self.filename_x_scrollbar = self.create_filename_x_scrollbar(self.filename_labelframe)
+        self.filename_entry_widget = self.create_filename_entry_widget(self.filename_labelframe, self.filename_x_scrollbar, default_filename)
+        self.link_filename_x_scrollbar_to_entry_widget(self.filename_labelframe, self.filename_x_scrollbar, self.filename_entry_widget)
+        self.filename_default_button = self.create_filename_default_button(self.filename_labelframe, self.filename_default_button_command_func)    
+
+
+    def create_filename_labelframe(self, frame):
+        filename_labelframe = tk.LabelFrame(frame, text="Save As", relief=tk.RIDGE, padx=2)
+        filename_labelframe.grid(column=0, row=0)
+        return filename_labelframe
+
+
+    def create_filename_x_scrollbar(self, frame):
+        filename_x_scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL)
+        filename_x_scrollbar.grid(column=0, row=1, sticky=tk.EW)
+        return filename_x_scrollbar
+
+
+    def create_filename_entry_widget(self, frame, x_scrollbar, default_filename):
+        filename_entry_widget = tk.Entry(frame, xscrollcommand=x_scrollbar.set, width=30)
+        if default_filename:
+            filename_entry_widget.insert(0, default_filename)
+        filename_entry_widget.grid(column=0, row=0, padx=1)
+        return filename_entry_widget
+
+    
+    def link_filename_x_scrollbar_to_entry_widget(self, frame, x_scrollbar, entry_widget):
+        x_scrollbar.configure(command=entry_widget.xview)
+
+    
+    def create_filename_default_button(self, frame, command_func):
+        filename_default_button = tk.Button(frame, command=command_func, text='SET DEFAULT', font=tk_font.Font(size=8))
+        filename_default_button.grid(column=1, row=0)
+        return filename_default_button
+
+    
+    def filename_default_button_command_func(self):
+        if self.filename_default != self.filename_entry_widget.get():
+            self.filename_default = self.filename_entry_widget.get()
+            self.write_favorites_data_to_file()
 
 
     def populate_master_origin_entry_widget(self, osnav, parent_frame):
@@ -695,42 +739,6 @@ class MasterWindow:
             self.origin_favorites_button.configure(relief=tk.RAISED)
             self.origin_favorites_button.configure(bg=self.default_color)
         self.zero_listbox_sel_and_change_listbox_focus()
-        
-    
-    def populate_master_filename_entry_widget(self, osnav, parent_frame):
-        self.filename_labelframe = self.create_filename_labelframe(parent_frame)
-        self.filename_x_scrollbar = self.create_filename_x_scrollbar(self.filename_labelframe)
-        self.filename_entry_widget = self.create_filename_entry_widget(self.filename_labelframe, self.filename_x_scrollbar)
-        self.link_filename_x_scrollbar_to_entry_widget(self.filename_labelframe, self.filename_x_scrollbar, self.filename_entry_widget)
-        self.filename_default_button = self.create_filename_default_button(self.filename_labelframe)    
-
-
-    def create_filename_labelframe(self, frame):
-        filename_labelframe = tk.LabelFrame(frame, text="Save As", relief=tk.RIDGE, padx=2)
-        filename_labelframe.grid(column=0, row=0)
-        return filename_labelframe
-
-
-    def create_filename_x_scrollbar(self, frame):
-        filename_x_scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL)
-        filename_x_scrollbar.grid(column=0, row=1, sticky=tk.EW)
-        return filename_x_scrollbar
-
-
-    def create_filename_entry_widget(self, frame, x_scrollbar):
-        filename_entry_widget = tk.Entry(frame, xscrollcommand=x_scrollbar.set, width=30)
-        filename_entry_widget.grid(column=0, row=0, padx=1)
-        return filename_entry_widget
-
-    
-    def link_filename_x_scrollbar_to_entry_widget(self, frame, x_scrollbar, entry_widget):
-        x_scrollbar.configure(command=entry_widget.xview)
-
-    
-    def create_filename_default_button(self, frame):
-        filename_default_button = tk.Button(frame, text='DEFAULT')
-        filename_default_button.grid(column=1, row=0)
-        return filename_default_button
 
 
     def populate_master_target_dir_entry_widget(self, osnav, parent_frame):
