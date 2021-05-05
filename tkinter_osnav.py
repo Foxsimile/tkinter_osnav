@@ -24,6 +24,7 @@ class MasterWindow:
         self.master = self.create_master()
         self.default_color = self.master.cget('bg')
         self.primary_widget_highlight_color = 'dodger blue'
+        self.widget_warning_color = 'red'
         self.osnav = OSNavigator()
         self.op_sys_specs = self.set_operating_system_specifics(self.osnav.op_sys)
         self.photoimage_dict = {}
@@ -54,10 +55,12 @@ class MasterWindow:
         self.entry_section_parent_frame = None
         self.filename_labelframe = None
         self.filename_x_scrollbar = None
+        self.filename_entry_frame = None
         self.filename_entry_widget = None
         self.filename_default_button = None
         self.origin_labelframe = None
         self.origin_x_scrollbar = None
+        self.origin_entry_frame = None
         self.origin_entry_widget = None
         self.origin_save_entry = None
         self.origin_save_info_entry = None
@@ -75,6 +78,7 @@ class MasterWindow:
         self.origin_favorites_option_buttons = None
         self.target_dir_labelframe = None
         self.target_dir_x_scrollbar = None
+        self.target_dir_entry_frame = None
         self.target_dir_entry_widget = None
         self.target_dir_save_entry = None
         self.target_dir_save_info_entry = None
@@ -586,7 +590,7 @@ class MasterWindow:
     def populate_master_filename_entry_widget(self, osnav, parent_frame, default_filename):
         self.filename_labelframe = self.create_filename_labelframe(parent_frame)
         self.filename_x_scrollbar = self.create_filename_x_scrollbar(self.filename_labelframe)
-        self.filename_entry_widget = self.create_filename_entry_widget(self.filename_labelframe, self.filename_x_scrollbar, default_filename)
+        self.filename_entry_frame, self.filename_entry_widget = self.create_filename_entry_widget(self.filename_labelframe, self.filename_x_scrollbar, default_filename, self.filename_entry_focus_in_handler)
         self.link_filename_x_scrollbar_to_entry_widget(self.filename_labelframe, self.filename_x_scrollbar, self.filename_entry_widget)
         self.filename_default_button = self.create_filename_default_button(self.filename_labelframe, self.filename_default_button_command_func)    
 
@@ -603,12 +607,15 @@ class MasterWindow:
         return filename_x_scrollbar
 
 
-    def create_filename_entry_widget(self, frame, x_scrollbar, default_filename):
-        filename_entry_widget = tk.Entry(frame, xscrollcommand=x_scrollbar.set, width=30)
+    def create_filename_entry_widget(self, frame, x_scrollbar, default_filename, command_func):
+        filename_entry_frame = tk.Frame(frame, padx=1, pady=1, bg=self.default_color)
+        filename_entry_frame.grid(column=0, row=0, padx=1)
+        filename_entry_widget = tk.Entry(filename_entry_frame, xscrollcommand=x_scrollbar.set, width=30)
+        filename_entry_widget.bind('<FocusIn>', command_func)
         if default_filename:
             filename_entry_widget.insert(0, default_filename)
-        filename_entry_widget.grid(column=0, row=0, padx=1)
-        return filename_entry_widget
+        filename_entry_widget.grid(column=0, row=0)
+        return filename_entry_frame, filename_entry_widget
 
     
     def link_filename_x_scrollbar_to_entry_widget(self, frame, x_scrollbar, entry_widget):
@@ -626,11 +633,15 @@ class MasterWindow:
             self.filename_default = self.filename_entry_widget.get()
             self.write_favorites_data_to_file()
 
+    
+    def filename_entry_focus_in_handler(self, event_obj):
+        self.filename_entry_frame.configure(bg=self.default_color)
+
 
     def populate_master_origin_entry_widget(self, osnav, parent_frame):
         self.origin_labelframe = self.create_origin_labelframe(parent_frame)
         self.origin_x_scrollbar = self.create_origin_x_scrollbar(self.origin_labelframe)
-        self.origin_entry_widget = self.create_origin_entry_widget(self.origin_labelframe, self.origin_x_scrollbar)
+        self.origin_entry_frame, self.origin_entry_widget = self.create_origin_entry_widget(self.origin_labelframe, self.origin_x_scrollbar)
         self.link_origin_x_scrollbar_to_entry_widget(self.origin_labelframe, self.origin_x_scrollbar, self.origin_entry_widget)
         self.origin_save_button = self.create_origin_save_button(self.origin_labelframe, self.origin_save_button_command_handler)
         self.origin_select_button = self.create_origin_select_button(self.origin_labelframe, self.origin_select_button_command_handler)
@@ -654,9 +665,11 @@ class MasterWindow:
 
     
     def create_origin_entry_widget(self, frame, x_scrollbar):
-        origin_entry_widget = tk.Entry(frame, xscrollcommand=x_scrollbar.set, width=30, state=tk.DISABLED, disabledbackground='WHITE', disabledforeground='BLACK')
-        origin_entry_widget.grid(column=0, row=0, padx=1, sticky=tk.S)
-        return origin_entry_widget
+        origin_entry_frame = tk.Frame(frame, padx=1, pady=1, bg=self.default_color)
+        origin_entry_frame.grid(column=0, row=0, padx=1, sticky=tk.S)
+        origin_entry_widget = tk.Entry(origin_entry_frame, xscrollcommand=x_scrollbar.set, width=30, state=tk.DISABLED, disabledbackground='WHITE', disabledforeground='BLACK')
+        origin_entry_widget.grid(column=0, row=0)
+        return origin_entry_frame, origin_entry_widget
 
     
     def create_origin_save_entry_widget_pair(self, frame):
@@ -730,6 +743,7 @@ class MasterWindow:
 
 
     def origin_select_button_command_handler(self, event_obj=None):
+        self.origin_entry_frame.configure(bg=self.default_color)
         if event_obj != None:
             if self.currently_active_listbox_obj == self.origin_favorites_listbox:
                 if event_obj.keysym == 'Return':
@@ -765,7 +779,7 @@ class MasterWindow:
     def populate_master_target_dir_entry_widget(self, osnav, parent_frame):
         self.target_dir_labelframe = self.create_target_dir_labelframe(parent_frame)
         self.target_dir_x_scrollbar = self.create_target_dir_x_scrollbar(self.target_dir_labelframe)
-        self.target_dir_entry_widget = self.create_target_dir_entry_widget(self.target_dir_labelframe, self.target_dir_x_scrollbar)
+        self.target_dir_entry_frame, self.target_dir_entry_widget = self.create_target_dir_entry_widget(self.target_dir_labelframe, self.target_dir_x_scrollbar)
         self.link_target_dir_x_scrollbar_to_entry_widget(self.target_dir_labelframe, self.target_dir_x_scrollbar, self.target_dir_entry_widget)
         self.target_dir_save_button = self.create_target_dir_save_button(self.target_dir_labelframe, self.target_dir_save_button_command_handler)
         self.target_dir_select_button = self.create_target_dir_select_button(self.target_dir_labelframe, self.target_dir_select_button_command_handler)
@@ -789,9 +803,11 @@ class MasterWindow:
     
 
     def create_target_dir_entry_widget(self, frame, x_scrollbar):
-        target_dir_entry_widget = tk.Entry(frame, xscrollcommand=x_scrollbar.set, width=30, state=tk.DISABLED, disabledbackground='white', disabledforeground='black')
-        target_dir_entry_widget.grid(column=0, row=0, padx=1, sticky=tk.S)
-        return target_dir_entry_widget
+        target_dir_entry_frame = tk.Frame(frame, padx=1, pady=1, bg=self.default_color)
+        target_dir_entry_frame.grid(column=0, row=0, padx=1, sticky=tk.S)
+        target_dir_entry_widget = tk.Entry(target_dir_entry_frame, xscrollcommand=x_scrollbar.set, width=30, state=tk.DISABLED, disabledbackground='white', disabledforeground='black')
+        target_dir_entry_widget.grid(column=0, row=0)
+        return target_dir_entry_frame, target_dir_entry_widget
 
     
     def create_target_dir_save_entry_widget_pair(self, frame):
@@ -865,6 +881,7 @@ class MasterWindow:
 
 
     def target_dir_select_button_command_handler(self, event_obj=None):
+        self.target_dir_entry_frame.configure(bg=self.default_color)
         if event_obj != None:
             if self.currently_active_listbox_obj == self.target_dir_favorites_listbox:
                 if event_obj.keysym == 'Return':
@@ -1127,13 +1144,13 @@ class MasterWindow:
         if copy_path == None or target_dir_selected == None or copy_path == target_dir_selected or new_folder_name in [None, '']:
             print(f"FAILURE: copy:{copy_path}, target:{target_dir_selected}, name:'{new_folder_name}'")
             if copy_path == None:
-                pass
+                self.origin_entry_frame.configure(bg=self.widget_warning_color)
             if target_dir_selected == None:
-                pass
+                self.target_dir_entry_frame.configure(bg=self.widget_warning_color)
             if new_folder_name == '':
-                pass
+                self.filename_entry_frame.configure(bg=self.widget_warning_color)
+            self.cwd_textbox.focus_set()
             return
-        #TODO:func/s to validate folder-name (does not already exist, no illegal characters, not blank, etc)
         full_copy_path = self.osnav.join_paths(target_dir_selected, new_folder_name)
 
         if full_copy_path != None:
