@@ -23,6 +23,7 @@ class MasterWindow:
     def __init__(self):
         self.master = self.create_master()
         self.default_color = self.master.cget('bg')
+        self.primary_widget_highlight_color = 'dodger blue'
         self.osnav = OSNavigator()
         self.op_sys_specs = self.set_operating_system_specifics(self.osnav.op_sys)
         self.photoimage_dict = {}
@@ -35,6 +36,7 @@ class MasterWindow:
         self.origin_favorites_default = None
         self.target_dir_favorites_data = None
         self.target_dir_favorites_default = None
+        self.cwd_frame = None
         self.cwd_labelframe = None
         self.cwd_scrollbar = None
         self.cwd_stringvar = None
@@ -42,6 +44,7 @@ class MasterWindow:
         self.cwd_textbox = None
         self.cwd_textbox_select_indexes = None
         self.cwd_textbox_select_colorset = ('black', 'lawn green')
+        self.dir_listbox_outer_frame = None
         self.dir_listbox_labelframe = None
         self.dir_listbox_frame = None
         self.dir_listbox_y_scrollbar = None
@@ -201,17 +204,19 @@ class MasterWindow:
         
     
     def populate_master_cwd_label(self, osnav):
-        self.cwd_labelframe = self.create_cwd_labelframe(self.master)
+        self.cwd_frame, self.cwd_labelframe = self.create_cwd_frame_and_labelframe(self.master)
         self.cwd_x_scrollbar = self.create_cwd_x_scrollbar(self.cwd_labelframe)
         self.cwd_stringvar = self.create_cwd_stringvar(osnav)
         self.cwd_textbox = self.create_cwd_textbox(self.cwd_labelframe, self.cwd_stringvar.get(), self.cwd_x_scrollbar)
         self.link_cwd_x_scrollbar_to_textbox(self.cwd_labelframe, self.cwd_x_scrollbar, self.cwd_textbox)
 
 
-    def create_cwd_labelframe(self, frame):
-        cwd_labelframe = tk.LabelFrame(frame, labelanchor=tk.W, height=42, bg='white')
-        cwd_labelframe.grid(column=0, row=0, columnspan=2, sticky=tk.NW, padx=20, pady=10)
-        return cwd_labelframe
+    def create_cwd_frame_and_labelframe(self, frame):
+        cwd_frame = tk.Frame(frame, bg=self.default_color)
+        cwd_frame.grid(column=0, row=0, columnspan=2, sticky=tk.NW, padx=20, pady=10)
+        cwd_labelframe = tk.LabelFrame(cwd_frame, labelanchor=tk.W, height=42)
+        cwd_labelframe.grid(column=0, row=0, padx=2, pady=2)
+        return cwd_frame, cwd_labelframe
 
     
     def create_cwd_x_scrollbar(self, frame):
@@ -307,14 +312,13 @@ class MasterWindow:
 
 
     def cwd_textbox_focus_in_handler(self, event_obj):
-        pass
+        self.cwd_frame.configure(bg=self.primary_widget_highlight_color)
 
 
     def cwd_textbox_focus_out_handler(self, event_obj):
-        #self.cwd_textbox.tag_delete('cwd_sel_tag')
-        pass
-
+        self.cwd_frame.configure(bg=self.default_color)
     
+
     def cwd_textbox_dir_nav_event_handler(self, event_obj):
         insertion_index = self.cwd_textbox.index(tk.INSERT)
         cwd_str = '/'.join(self.osnav.split_cwd_list)
@@ -325,6 +329,8 @@ class MasterWindow:
 
         if event_obj.keysym in ['Left', 'Right'] or event_obj.type.name == 'ButtonRelease':
             if event_obj.type.name == 'KeyPress':
+                if len(self.cwd_textbox.tag_ranges('cwd_sel_tag')) > 0:
+                    insertion_index = self.cwd_textbox.tag_ranges('cwd_sel_tag')[0].string
                 if ((modifier := 1) and event_obj.keysym != 'Left'):
                     modifier = -1
             elif event_obj.type.name == 'ButtonRelease':
@@ -391,7 +397,7 @@ class MasterWindow:
 
         
     def populate_master_dir_listbox(self, osnav):
-        self.dir_listbox_labelframe = self.create_dir_listbox_labelframe(self.master)
+        self.dir_listbox_outer_frame, self.dir_listbox_labelframe = self.create_dir_listbox_frame_and_labelframe(self.master)
         self.dir_listbox_frame = self.create_dir_listbox_frame(self.dir_listbox_labelframe)
         self.dir_listbox_y_scrollbar = self.create_dir_y_scrollbar(self.dir_listbox_frame)
         self.dir_listbox_x_scrollbar = self.create_dir_x_scrollbar(self.dir_listbox_frame)
@@ -402,10 +408,12 @@ class MasterWindow:
         self.dir_active_intvar = self.create_dir_active_intvar(self.dir_listbox.curselection()[0])
 
 
-    def create_dir_listbox_labelframe(self, frame):
-        dir_listbox_labelframe = tk.LabelFrame(frame)
-        dir_listbox_labelframe.grid(column=0, row=2, rowspan=2, sticky=tk.NW, padx=10, pady=0)
-        return dir_listbox_labelframe
+    def create_dir_listbox_frame_and_labelframe(self, frame):
+        dir_listbox_frame = tk.Frame(frame, bg=self.default_color)
+        dir_listbox_frame.grid(column=0, row=2, rowspan=2, sticky=tk.NW, padx=10, pady=0)
+        dir_listbox_labelframe = tk.LabelFrame(dir_listbox_frame, padx=1, pady=1, bg=self.default_color)
+        dir_listbox_labelframe.grid(column=0, row=0, sticky=tk.NSEW)
+        return dir_listbox_frame, dir_listbox_labelframe
 
 
     def create_dir_listbox_frame(self, frame):
@@ -489,7 +497,15 @@ class MasterWindow:
                 selection_index = nearest_viable_indexes[adj_scroll_dir_val]
                 dir_listbox.activate((selection_index - scroll_dir_val))
         return (dir_listbox, selection_index)
-        
+
+    
+    def dir_listbox_focus_in_handler(self, event_obj):
+        self.dir_listbox_labelframe.configure(bg=self.primary_widget_highlight_color)
+
+
+    def dir_listbox_focus_out_handler(self, event_obj):
+        self.dir_listbox_labelframe.configure(bg=self.default_color)
+
 
     def create_dir_listbox(self, frame, y_scrollbar, x_scrollbar, osnav, event_func):
         dir_listbox = tk.Listbox(frame, yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set, width=25, height=15)
@@ -497,6 +513,8 @@ class MasterWindow:
         dir_listbox.grid(column=0, row=1, sticky=tk.W)
         keypress_event_list = ['<KeyPress-Return>', '<KeyPress-BackSpace>', '<KeyPress-Up>', '<KeyPress-Down>', '<Next>', '<Prior>', '<Left>', '<Right>']
         [dir_listbox.bind(keypress_event_list[x], event_func) for x in range(len(keypress_event_list))]
+        dir_listbox.bind('<FocusIn>', self.dir_listbox_focus_in_handler)
+        dir_listbox.bind('<FocusOut>', self.dir_listbox_focus_out_handler)
         return dir_listbox
 
     
@@ -916,7 +934,7 @@ class MasterWindow:
 
         
     def create_favorites_overlay_frame(self, root_frame, base_frame_grid):
-        favorites_base_frame = tk.LabelFrame(root_frame)
+        favorites_base_frame = tk.LabelFrame(root_frame, padx=1, pady=1)
         self.activate_widget_grid_from_grid_info(favorites_base_frame, base_frame_grid)
         return favorites_base_frame
 
