@@ -301,6 +301,7 @@ class MasterWindow:
         elif event_obj.keysym in ['Up', 'Down']:
             self.currently_active_listbox_obj.focus_set()
             self.currently_active_listbox_obj.event_generate(f'<{event_obj.keysym}>')
+            return "break"
         elif event_obj.keysym in ['Return']:
             self.cwd_textbox_chdir_nav_event_handler(event_obj)
             self.currently_active_listbox_obj.focus_set()
