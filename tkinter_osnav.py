@@ -646,7 +646,7 @@ class MasterWindow:
         self.origin_save_button = self.create_origin_save_button(self.origin_labelframe, self.origin_save_button_command_handler)
         self.origin_select_button = self.create_origin_select_button(self.origin_labelframe, self.origin_select_button_command_handler)
         self.origin_favorites_button = self.create_origin_favorites_button(self.origin_labelframe, self.origin_favorites_button_command)
-        self.origin_save_info_entry, self.origin_save_entry = self.create_origin_save_entry_widget_pair(self.origin_labelframe)
+        self.origin_save_info_entry, self.origin_save_entry = self.create_origin_save_entry_widget_pair(self.origin_entry_frame)
         self.origin_cancel_button = self.create_origin_cancel_button(self.origin_labelframe, self.origin_cancel_button_command_handler)
         self.origin_favorites_base_frame, self.origin_favorites_x_scrollbar, self.origin_favorites_y_scrollbar, self.origin_favorites_canvas, self.origin_favorites_listbox, self.origin_favorites_inner_frame, self.origin_favorites_option_buttons = self.create_favorites_overlay_omni_overseer((self.dir_listbox.cget('width'), self.dir_listbox.cget('height')), 'origin_favorites_default', self.origin_favorites_data)
         self.origin_favorites_listbox.bind('<Return>', self.origin_select_button_command_handler)
@@ -715,6 +715,9 @@ class MasterWindow:
                 self.origin_entry_widget.delete(0, tk.END)
                 self.origin_entry_widget.configure(state=tk.DISABLED)
                 self.write_favorites_data_to_file()
+            else:
+                self.origin_entry_frame.configure(bg=self.widget_warning_color)
+                self.cwd_textbox.focus_set()
 
 
     def create_origin_cancel_button(self, frame, command_func):
@@ -784,7 +787,7 @@ class MasterWindow:
         self.target_dir_save_button = self.create_target_dir_save_button(self.target_dir_labelframe, self.target_dir_save_button_command_handler)
         self.target_dir_select_button = self.create_target_dir_select_button(self.target_dir_labelframe, self.target_dir_select_button_command_handler)
         self.target_dir_favorites_button = self.create_target_dir_favorites_button(self.target_dir_labelframe, self.target_dir_favorites_button_command)
-        self.target_dir_save_info_entry, self.target_dir_save_entry = self.create_target_dir_save_entry_widget_pair(self.target_dir_labelframe)
+        self.target_dir_save_info_entry, self.target_dir_save_entry = self.create_target_dir_save_entry_widget_pair(self.target_dir_entry_frame)
         self.target_dir_cancel_button = self.create_target_dir_cancel_button(self.target_dir_labelframe, self.target_dir_cancel_button_command_handler)
         self.target_dir_favorites_base_frame, self.target_dir_favorites_x_scrollbar, self.target_dir_favorites_y_scrollbar, self.target_dir_favorites_canvas, self.target_dir_favorites_listbox, self.target_dir_favorites_inner_frame, self.target_dir_favorites_option_buttons = self.create_favorites_overlay_omni_overseer((self.dir_listbox.cget('width'), self.dir_listbox.cget('height')), 'target_dir_favorites_default', self.target_dir_favorites_data)
         self.target_dir_favorites_listbox.bind('<Return>', self.target_dir_select_button_command_handler)
@@ -853,6 +856,9 @@ class MasterWindow:
                 self.target_dir_entry_widget.delete(0, tk.END)
                 self.target_dir_entry_widget.configure(state=tk.DISABLED)
                 self.write_favorites_data_to_file()
+            else:
+                self.target_dir_entry_frame.configure(bg=self.widget_warning_color)
+                self.cwd_textbox.focus_set()
 
 
     def create_target_dir_cancel_button(self, frame, command_func):
