@@ -737,6 +737,7 @@ class MasterWindow:
         self.cwd_textbox.focus_set()
         self.cwd_textbox.event_generate('<End>')
         self.origin_save_button.configure(bg=self.default_color)
+        self.origin_entry_frame.configure(bg=self.default_color)
 
     
     def create_origin_select_button(self, frame, command_func):
@@ -878,7 +879,8 @@ class MasterWindow:
         self.cwd_textbox.focus_set()
         self.cwd_textbox.event_generate('<End>')
         self.target_dir_save_button.configure(bg=self.default_color)
-    
+        self.target_dir_entry_frame.configure(bg=self.default_color)
+        
 
     def create_target_dir_select_button(self, frame, command_func):
         target_dir_select_button = tk.Button(frame, command=command_func, text='SELECT', font=tk.font.Font(size=8))
