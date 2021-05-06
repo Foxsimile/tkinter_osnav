@@ -227,7 +227,7 @@ class MasterWindow:
 
     def set_cwd_stringvar(self, cwd_stringvar, osnav):
         cwd_stringvar.set(osnav.cwd)
-        if self.osnav.base_dir == self.osnav.sep:
+        if cwd_stringvar.get()[0] == osnav.sep:
             cwd_stringvar.set(osnav.sep + cwd_stringvar.get())
         return cwd_stringvar
 
