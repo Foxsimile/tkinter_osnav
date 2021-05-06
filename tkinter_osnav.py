@@ -4,20 +4,6 @@ import os, string
 from osnavigator import OSNavigator
 from shutilizer import Shutilizer
 
-#When I wrote this code only two people knew what it did: me, and God.
-#Now, only God knows.
-
-#TODO: Use the shutil module to facilitate the file copying process from the source dir to the target dir
-#TODO: Add clickability for the directory listing, as opposed to forcing selection via the enter-key
-    #TODO: Remove ability to select the spacer row via clicking
-#TODO: Add favourites (star) icon option to the directory listing, which will save any favourited directories within a folder for quick-access
-#TODO: Add functionality to save default target directories & save names, as these are not liable to change frequently
-#TODO: Add CLONE button, to actually allow for the mechanism to provide real-world functionality, as opposed to serving as a semi-neat file navigation window (granted, it is)
-#TODO: Add validation to new folder name entry widget (filename_entry_widget) using the entry-widget validation parametre & a sufficient callable that is OS dependant
-#TODO: Add option to modify copy location, as this functionality is currently not available
-#TODO: Modify functionality of CWD navigation toolbar (topmost) to allow backspace to return to the top-most level, showcasing the available drives
-#TODO: Fix that annoying jump that allows for the selection of whitespace in the directory listbox when utilizing page-up/page-down
-
 
 class MasterWindow:
     def __init__(self):
@@ -99,7 +85,6 @@ class MasterWindow:
 
         self.load_saved_favorites_data()
         self.populate_master_overseer(self.osnav)
-
 
 
     def create_master(self):
@@ -641,7 +626,7 @@ class MasterWindow:
     def populate_master_origin_entry_widget(self, osnav, parent_frame):
         self.origin_labelframe = self.create_origin_labelframe(parent_frame)
         self.origin_x_scrollbar = self.create_origin_x_scrollbar(self.origin_labelframe)
-        self.origin_entry_frame, self.origin_entry_widget = self.create_origin_entry_widget(self.origin_labelframe, self.origin_x_scrollbar)
+        self.origin_entry_frame, self.origin_entry_widget = self.create_origin_entry_widget(self.origin_labelframe, self.origin_x_scrollbar, self.origin_favorites_default)
         self.link_origin_x_scrollbar_to_entry_widget(self.origin_labelframe, self.origin_x_scrollbar, self.origin_entry_widget)
         self.origin_save_button = self.create_origin_save_button(self.origin_labelframe, self.origin_save_button_command_handler)
         self.origin_select_button = self.create_origin_select_button(self.origin_labelframe, self.origin_select_button_command_handler)
@@ -664,11 +649,15 @@ class MasterWindow:
         return origin_x_scrollbar
 
     
-    def create_origin_entry_widget(self, frame, x_scrollbar):
+    def create_origin_entry_widget(self, frame, x_scrollbar, fav_default):
         origin_entry_frame = tk.Frame(frame, padx=1, pady=1, bg=self.default_color)
         origin_entry_frame.grid(column=0, row=0, padx=1, sticky=tk.S)
         origin_entry_widget = tk.Entry(origin_entry_frame, xscrollcommand=x_scrollbar.set, width=30, state=tk.DISABLED, disabledbackground='WHITE', disabledforeground='BLACK')
         origin_entry_widget.grid(column=0, row=0)
+        if fav_default != None:
+            origin_entry_widget.configure(state=tk.NORMAL)
+            origin_entry_widget.insert(0, fav_default[1])
+            origin_entry_widget.configure(state=tk.DISABLED)
         return origin_entry_frame, origin_entry_widget
 
     
@@ -783,7 +772,7 @@ class MasterWindow:
     def populate_master_target_dir_entry_widget(self, osnav, parent_frame):
         self.target_dir_labelframe = self.create_target_dir_labelframe(parent_frame)
         self.target_dir_x_scrollbar = self.create_target_dir_x_scrollbar(self.target_dir_labelframe)
-        self.target_dir_entry_frame, self.target_dir_entry_widget = self.create_target_dir_entry_widget(self.target_dir_labelframe, self.target_dir_x_scrollbar)
+        self.target_dir_entry_frame, self.target_dir_entry_widget = self.create_target_dir_entry_widget(self.target_dir_labelframe, self.target_dir_x_scrollbar, self.target_dir_favorites_default)
         self.link_target_dir_x_scrollbar_to_entry_widget(self.target_dir_labelframe, self.target_dir_x_scrollbar, self.target_dir_entry_widget)
         self.target_dir_save_button = self.create_target_dir_save_button(self.target_dir_labelframe, self.target_dir_save_button_command_handler)
         self.target_dir_select_button = self.create_target_dir_select_button(self.target_dir_labelframe, self.target_dir_select_button_command_handler)
@@ -806,11 +795,15 @@ class MasterWindow:
         return target_dir_x_scrollbar
     
 
-    def create_target_dir_entry_widget(self, frame, x_scrollbar):
+    def create_target_dir_entry_widget(self, frame, x_scrollbar, fav_default):
         target_dir_entry_frame = tk.Frame(frame, padx=1, pady=1, bg=self.default_color)
         target_dir_entry_frame.grid(column=0, row=0, padx=1, sticky=tk.S)
         target_dir_entry_widget = tk.Entry(target_dir_entry_frame, xscrollcommand=x_scrollbar.set, width=30, state=tk.DISABLED, disabledbackground='white', disabledforeground='black')
         target_dir_entry_widget.grid(column=0, row=0)
+        if fav_default != None:
+            target_dir_entry_widget.configure(state=tk.NORMAL)
+            target_dir_entry_widget.insert(0, fav_default[1])
+            target_dir_entry_widget.configure(state=tk.DISABLED)
         return target_dir_entry_frame, target_dir_entry_widget
 
     
@@ -880,7 +873,7 @@ class MasterWindow:
         self.cwd_textbox.event_generate('<End>')
         self.target_dir_save_button.configure(bg=self.default_color)
         self.target_dir_entry_frame.configure(bg=self.default_color)
-        
+
 
     def create_target_dir_select_button(self, frame, command_func):
         target_dir_select_button = tk.Button(frame, command=command_func, text='SELECT', font=tk.font.Font(size=8))
