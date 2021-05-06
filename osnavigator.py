@@ -68,6 +68,8 @@ class OSNavigator:
             split_cwd_list.append(split_cwd_str[1])
             cwd_str = split_cwd_str[0]
         split_cwd_list = [os.path.splitdrive(cwd_str)[0]] + split_cwd_list[::-1]
+        if split_cwd_list == self.sep:
+            split_cwd_list[0] = self.sep
         return split_cwd_list
 
 
