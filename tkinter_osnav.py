@@ -227,7 +227,7 @@ class MasterWindow:
 
     def set_cwd_stringvar(self, cwd_stringvar, osnav):
         cwd_stringvar.set(osnav.cwd)
-        if cwd_stringvar.get()[0] == osnav.sep:
+        if osnav.base_dir == osnav.sep:
             cwd_stringvar.set(osnav.sep + cwd_stringvar.get())
         return cwd_stringvar
 
@@ -314,6 +314,8 @@ class MasterWindow:
     def cwd_textbox_dir_nav_event_handler(self, event_obj):
         insertion_index = self.cwd_textbox.index(tk.INSERT)
         cwd_str = '/'.join(self.osnav.split_cwd_list)
+        if cwd_str[0] == '/':
+            cwd_str = '_' + cwd_str
         textbox_sel_bg_color = self.cwd_textbox_select_colorset[0]
         textbox_sel_fg_color = self.cwd_textbox_select_colorset[1]
         textbox_tag_start_text_index = None
