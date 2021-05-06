@@ -73,7 +73,16 @@ class OSNavigator:
 
     def update_cwd_scan(self):
         cwd_scan_list = list(os.scandir())
-        cwd_scan = {'dirs': [x.name for x in cwd_scan_list if x.is_dir() == True], 'files': [x for x in cwd_scan_list if x.is_file() == True]}
+        cwd_scan = {'dirs': [], 'files': []}
+        for entry_x in cwd_scan_list:
+            if entry_x.is_dir():
+                try:
+                    _ = os.scandir(os.path.join(os.getcwd(), entry_x))
+                    cwd_scan['dirs'].append(entry_x.name)
+                except PermissionError:
+                    pass
+            elif entry_x.is_file():
+                cwd_scan['files'].append(entry_x.name)
         cwd_scan['dirs'].insert(0, '..')
         return cwd_scan
 
@@ -89,14 +98,18 @@ class OSNavigator:
             prev_dir = self.cwd
             if prev_dir == target_dir:
                 return
-            os.chdir(target_dir)
-            self.cwd = self.getcwd()
-            self.cwd_scan = self.update_cwd_scan()
-            self.split_cwd_list = self.get_split_cwd_list()
-            if reversal == False:
-                self.log_chdir(prev_dir)
-        except FileNotFoundError as e:
-            return ('File Not Found', e)
+            try:
+                os.chdir(target_dir)
+                self.cwd = self.getcwd()
+                self.cwd_scan = self.update_cwd_scan()
+                self.split_cwd_list = self.get_split_cwd_list()
+                if reversal == False:
+                    self.log_chdir(prev_dir)
+            except PermissionError as err:
+                self.cwd = prev_dir
+                return
+        except FileNotFoundError as err:
+            return ('File Not Found', err)
 
 
     def log_chdir(self, prev_dir):
