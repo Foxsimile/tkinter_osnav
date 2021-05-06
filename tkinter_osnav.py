@@ -314,7 +314,7 @@ class MasterWindow:
     def cwd_textbox_dir_nav_event_handler(self, event_obj):
         insertion_index = self.cwd_textbox.index(tk.INSERT)
         cwd_str = '/'.join(self.osnav.split_cwd_list)
-        if cwd_str[0] == '/':
+        if self.osnav.base_dir == '/':
             cwd_str = '_' + cwd_str
         textbox_sel_bg_color = self.cwd_textbox_select_colorset[0]
         textbox_sel_fg_color = self.cwd_textbox_select_colorset[1]
