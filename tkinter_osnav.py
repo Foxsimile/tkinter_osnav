@@ -19,6 +19,7 @@ class MasterWindow:
         self.save_data_filename = 'favorites_settings.json'
         self.save_data_filepath = None
         self.filename_default = None
+        self.cwd_default = None
         self.origin_favorites_data = None
         self.origin_favorites_default = None
         self.target_dir_favorites_data = None
@@ -120,6 +121,10 @@ class MasterWindow:
             filename_default = loaded_data.get('filename_default', None)
             if isinstance(filename_default, str):
                 self.filename_default = filename_default
+            cwd_default = loaded_data.get('cwd_default', None)
+            if isinstance(cwd_default, str) and cwd_default != "":
+                cwd_default = (self.osnav.verify_paths(cwd_default, single_path=True))
+            self.cwd_default = cwd_default
             origin_favorites_default = loaded_data.get('origin_default', None)
             if isinstance(origin_favorites_default, list) and len(origin_favorites_default) == 2 and isinstance(origin_favorites_default[0], str) and isinstance(origin_favorites_default[1], str):
                 if len(origin_favorites_default) > 0 and origin_favorites_default[1] != '':
@@ -147,7 +152,7 @@ class MasterWindow:
 
 
     def create_blank_favorites_data(self):
-        favorites_dict = {'filename_default': "", 'origin_default': [], 'target_default': [], 'origin_favorites': [], 'target_favorites': []}
+        favorites_dict = {'filename_default': "", 'cwd_default': "", 'origin_default': [], 'target_default': [], 'origin_favorites': [], 'target_favorites': []}
         return favorites_dict
 
 
@@ -157,7 +162,7 @@ class MasterWindow:
 
     
     def aggregate_favorites_data(self):
-        favorites_dict = {'filename_default': self.filename_default, 'origin_default': self.origin_favorites_default, 'target_default': self.target_dir_favorites_default,
+        favorites_dict = {'filename_default': self.filename_default, 'cwd_default': self.cwd_default, 'origin_default': self.origin_favorites_default, 'target_default': self.target_dir_favorites_default,
                             'origin_favorites': self.origin_favorites_data, 'target_favorites': self.target_dir_favorites_data}
         return favorites_dict
 
@@ -195,9 +200,10 @@ class MasterWindow:
     def populate_master_cwd_label(self, osnav):
         self.cwd_frame, self.cwd_labelframe = self.create_cwd_frame_and_labelframe(self.master)
         self.cwd_x_scrollbar = self.create_cwd_x_scrollbar(self.cwd_labelframe)
-        self.cwd_stringvar = self.create_cwd_stringvar(osnav)
+        self.cwd_stringvar = self.create_cwd_stringvar(osnav, self.cwd_default)
         self.cwd_textbox = self.create_cwd_textbox(self.cwd_labelframe, self.cwd_stringvar.get(), self.cwd_x_scrollbar)
         self.link_cwd_x_scrollbar_to_textbox(self.cwd_labelframe, self.cwd_x_scrollbar, self.cwd_textbox)
+        self.cwd_default_button = self.create_cwd_default_button(self.cwd_labelframe, self.cwd_default_button_command_func)
 
 
     def create_cwd_frame_and_labelframe(self, frame):
@@ -210,7 +216,7 @@ class MasterWindow:
     
     def create_cwd_x_scrollbar(self, frame):
         cwd_x_scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL)
-        cwd_x_scrollbar.grid(column=0, row=1, columnspan=2, sticky=tk.EW)
+        cwd_x_scrollbar.grid(column=0, row=1, columnspan=1, sticky=tk.EW)
         return cwd_x_scrollbar
 
     
@@ -219,9 +225,15 @@ class MasterWindow:
         frame.grid(column=0, row=1, columnspan=2)
 
     
-    def create_cwd_stringvar(self, osnav):
+    def create_cwd_stringvar(self, osnav, cwd_default):
         cwd_stringvar = tk.StringVar()
-        self.set_cwd_stringvar(cwd_stringvar, osnav)
+        if cwd_default not in ["", None]:
+            cwd_stringvar.set(cwd_default)
+            osnav.chdir(cwd_stringvar.get())
+            if osnav.base_dir == osnav.sep:
+                cwd_stringvar.set(osnav.sep + cwd_stringvar.get())
+        else:
+            self.set_cwd_stringvar(cwd_stringvar, osnav)
         return cwd_stringvar
 
 
@@ -382,6 +394,18 @@ class MasterWindow:
             osnav.chdir(selected_dir)
             self.update_widgets_post_dir_change()
             self.currently_active_listbox_obj.focus_force()
+
+    
+    def create_cwd_default_button(self, frame, command_func):
+        cwd_default_button = tk.Button(frame, command=command_func, text='SET DEFAULT', font=tk_font.Font(size=8))
+        cwd_default_button.grid(column=1, row=0, padx=1)
+        return cwd_default_button
+
+    
+    def cwd_default_button_command_func(self):
+        if self.get_cwd_stringvar() != self.cwd_default:
+            self.cwd_default = self.get_cwd_stringvar()
+            self.write_favorites_data_to_file()
 
     
     def zero_listbox_sel_and_change_listbox_focus(self):
