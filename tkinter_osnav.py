@@ -686,6 +686,7 @@ class MasterWindow:
             origin_entry_widget.configure(state=tk.NORMAL)
             origin_entry_widget.insert(0, fav_default[1])
             origin_entry_widget.configure(state=tk.DISABLED)
+            self.origin_selected = fav_default[1]
         return origin_entry_frame, origin_entry_widget
 
     
@@ -832,6 +833,7 @@ class MasterWindow:
             target_dir_entry_widget.configure(state=tk.NORMAL)
             target_dir_entry_widget.insert(0, fav_default[1])
             target_dir_entry_widget.configure(state=tk.DISABLED)
+            self.target_dir_selected = fav_default[1]
         return target_dir_entry_frame, target_dir_entry_widget
 
     
@@ -1168,19 +1170,19 @@ class MasterWindow:
     
     def copy_button_command(self):
         copy_path = self.origin_selected
-        target_dir_selected = self.target_dir_selected
+        target_path = self.target_dir_selected
         new_folder_name = self.filename_entry_widget.get()
-        if copy_path == None or target_dir_selected == None or copy_path == target_dir_selected or new_folder_name in [None, '']:
-            print(f"FAILURE: copy:{copy_path}, target:{target_dir_selected}, name:'{new_folder_name}'")
-            if copy_path == None:
+        if copy_path == None or target_path == None or copy_path == target_path or new_folder_name in [None, '']:
+            print(f"FAILURE: copy:{copy_path}, target:{target_path}, name:'{new_folder_name}'")
+            if copy_path == None or copy_path == target_path:
                 self.origin_entry_frame.configure(bg=self.widget_warning_color)
-            if target_dir_selected == None:
+            if target_path == None or copy_path == target_path:
                 self.target_dir_entry_frame.configure(bg=self.widget_warning_color)
             if new_folder_name == '':
                 self.filename_entry_frame.configure(bg=self.widget_warning_color)
             self.cwd_textbox.focus_set()
             return
-        full_copy_path = self.osnav.join_paths(target_dir_selected, new_folder_name)
+        full_copy_path = self.osnav.join_paths(target_path, new_folder_name)
 
         if full_copy_path != None:
             #Shutilizer.copytree_to_dst(copy_path, full_copy_path)
