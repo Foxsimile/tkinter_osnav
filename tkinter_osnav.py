@@ -683,6 +683,7 @@ class MasterWindow:
         origin_entry_frame = tk.Frame(frame, padx=1, pady=1, bg=self.default_color)
         origin_entry_frame.grid(column=0, row=0, padx=1, sticky=tk.S)
         origin_entry_widget = tk.Entry(origin_entry_frame, xscrollcommand=x_scrollbar.set, width=30, state=tk.DISABLED, disabledbackground='WHITE', disabledforeground='BLACK')
+        origin_entry_widget.bind('<ButtonRelease>', self.origin_entry_widget_click_handler)
         origin_entry_widget.grid(column=0, row=0)
         if fav_default != None:
             origin_entry_widget.configure(state=tk.NORMAL)
@@ -692,6 +693,11 @@ class MasterWindow:
         return origin_entry_frame, origin_entry_widget
 
     
+    def origin_entry_widget_click_handler(self, event_obj):
+        if self.origin_entry_frame.cget('bg') != self.default_color:
+            self.origin_entry_frame.configure(bg=self.default_color)
+
+    
     def create_origin_save_entry_widget_pair(self, frame):
         origin_save_info_entry = tk.Entry(frame, width=12, disabledbackground='WHITE', disabledforeground='BLACK')
         origin_save_info_entry.insert(0, ' SAVE NAME')
@@ -699,6 +705,7 @@ class MasterWindow:
         origin_save_info_entry.grid(column=0, row=0, padx=1, sticky=tk.SW)
         origin_save_info_entry.lower()
         origin_save_entry = tk.Entry(frame, width=18, state=tk.DISABLED)
+        origin_save_entry.bind('<ButtonRelease>', self.origin_entry_widget_click_handler)
         origin_save_entry.grid(column=0, row=0, padx=1, sticky=tk.SE)
         origin_save_entry.lower()
         return origin_save_info_entry, origin_save_entry
@@ -830,6 +837,7 @@ class MasterWindow:
         target_dir_entry_frame = tk.Frame(frame, padx=1, pady=1, bg=self.default_color)
         target_dir_entry_frame.grid(column=0, row=0, padx=1, sticky=tk.S)
         target_dir_entry_widget = tk.Entry(target_dir_entry_frame, xscrollcommand=x_scrollbar.set, width=30, state=tk.DISABLED, disabledbackground='white', disabledforeground='black')
+        target_dir_entry_widget.bind('<ButtonRelease>', self.target_dir_entry_widget_click_handler)
         target_dir_entry_widget.grid(column=0, row=0)
         if fav_default != None:
             target_dir_entry_widget.configure(state=tk.NORMAL)
@@ -839,6 +847,11 @@ class MasterWindow:
         return target_dir_entry_frame, target_dir_entry_widget
 
     
+    def target_dir_entry_widget_click_handler(self, event_obj):
+        if self.target_dir_entry_frame.cget('bg') != self.default_color:
+            self.target_dir_entry_frame.configure(bg=self.default_color)
+
+    
     def create_target_dir_save_entry_widget_pair(self, frame):
         target_dir_save_info_entry = tk.Entry(frame, width=12, disabledbackground='WHITE', disabledforeground='BLACK')
         target_dir_save_info_entry.insert(0, ' SAVE NAME')
@@ -846,6 +859,7 @@ class MasterWindow:
         target_dir_save_info_entry.grid(column=0, row=0, padx=1, sticky=tk.SW)
         target_dir_save_info_entry.lower()
         target_dir_save_entry = tk.Entry(frame, width=18, state=tk.DISABLED)
+        target_dir_save_entry.bind('<ButtonRelease>', self.target_dir_entry_widget_click_handler)
         target_dir_save_entry.grid(column=0, row=0, padx=1, sticky=tk.SE)
         target_dir_save_entry.lower()
         return target_dir_save_info_entry, target_dir_save_entry
@@ -1188,12 +1202,9 @@ class MasterWindow:
         full_copy_path = self.osnav.join_paths(target_path, new_folder_name)
 
         if full_copy_path != None:
-            #Shutilizer.copytree_to_dst(copy_path, full_copy_path)
-            pass
-        print(f"\ncopy_path:{copy_path}\nfull_copy_path:{full_copy_path}")
-        print(f"\nSIZE_W:{self.master.winfo_reqwidth()}, SIZE_H:{self.master.winfo_reqheight()}")
-        
-
+            if self.osnav.verify_paths([copy_path, target_path]) == [copy_path, target_path]:
+                #Shutilizer.copytree_to_dst(copy_path, full_copy_path)
+                print(f"{full_copy_path}")
 
 
 if __name__ == "__main__":
