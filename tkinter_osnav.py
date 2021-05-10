@@ -87,12 +87,15 @@ class MasterWindow:
         self.load_saved_favorites_data()
         self.populate_master_overseer(self.osnav)
 
+        print(f"(H)dir:{self.dir_listbox.winfo_height()}, (H)Ofav:{self.origin_favorites_listbox.winfo_height()}, (H)Tfav:{self.target_dir_favorites_listbox.winfo_height()}, (H)Ocan:{self.origin_favorites_canvas.winfo_height()}, (H)Tcan:{self.target_dir_favorites_canvas.winfo_height()}")
+        print(f"(W)dir:{self.dir_listbox.winfo_width()}, (W)Ofav:{self.origin_favorites_listbox.winfo_width()}, (W)Tfav:{self.target_dir_favorites_listbox.winfo_width()}, (W)Ocan:{self.origin_favorites_canvas.winfo_width()}, (W)Tcan:{self.target_dir_favorites_canvas.winfo_width()}")
+
 
     def create_master(self):
         master = tk.Tk()
         master.geometry('475x350')
         master.title('Welcome to the Fox Box!')
-        master.minsize(485, 350)
+        master.minsize(495, 360)
         #master.maxsize(485, 350)
         return master
 
@@ -1088,7 +1091,7 @@ class MasterWindow:
 
 
     def add_favorites_options_buttons(self, frame, listbox_widget, favorites_buttons_list, favorites_data, default_attr):
-        if listbox_widget.size() < listbox_widget.cget('height'):        
+        if listbox_widget.size() <= listbox_widget.cget('height'):        
             favorites_buttons_list.append((self.create_favorites_delete_button(frame, 0, len(favorites_buttons_list)), self.create_favorites_default_button(frame, 1, len(favorites_buttons_list))))
             favorites_buttons_list[-1][0].configure(command=self.favorites_delete_buttons_command_factory_func(frame, favorites_buttons_list[-1][0], favorites_buttons_list[-1][1], listbox_widget, favorites_buttons_list, favorites_data))
             favorites_buttons_list[-1][1].configure(command=self.favorites_default_buttons_command_factory_func(frame, favorites_buttons_list[-1][1], listbox_widget, favorites_buttons_list, favorites_data, default_attr))
