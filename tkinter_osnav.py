@@ -86,15 +86,19 @@ class MasterWindow:
 
         self.load_saved_favorites_data()
         self.populate_master_overseer(self.osnav)
+        self.update_master_geometry()
 
 
     def create_master(self):
         master = tk.Tk()
-        master.geometry('475x350')
-        master.title('Welcome to the Fox Box!')
-        master.minsize(495, 360)
-        #master.maxsize(485, 350)
+        master.title('OSNav - Copy with ease!')
         return master
+
+    
+    def update_master_geometry(self):
+        self.master.update_idletasks()
+        self.master.geometry(f"{(self.master.winfo_reqwidth() + 10)}x{(self.master.winfo_reqheight() + 10)}")
+        self.master.minsize(self.master.winfo_reqwidth() + 10, self.master.winfo_reqheight() + 10)
 
 
     def set_operating_system_specifics(self, op_sys):
@@ -1173,7 +1177,6 @@ class MasterWindow:
         target_path = self.target_dir_selected
         new_folder_name = self.filename_entry_widget.get()
         if copy_path == None or target_path == None or copy_path == target_path or new_folder_name in [None, '']:
-            print(f"FAILURE: copy:{copy_path}, target:{target_path}, name:'{new_folder_name}'")
             if copy_path == None or copy_path == target_path:
                 self.origin_entry_frame.configure(bg=self.widget_warning_color)
             if target_path == None or copy_path == target_path:
@@ -1188,6 +1191,9 @@ class MasterWindow:
             #Shutilizer.copytree_to_dst(copy_path, full_copy_path)
             pass
         print(f"\ncopy_path:{copy_path}\nfull_copy_path:{full_copy_path}")
+        print(f"\nSIZE_W:{self.master.winfo_reqwidth()}, SIZE_H:{self.master.winfo_reqheight()}")
+        
+
 
 
 if __name__ == "__main__":
