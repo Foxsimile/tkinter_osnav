@@ -1203,8 +1203,7 @@ class MasterWindow:
 
         if full_copy_path != None:
             if self.osnav.verify_paths([copy_path, target_path]) == [copy_path, target_path]:
-                #Shutilizer.copytree_to_dst(copy_path, full_copy_path)
-                print(f"{full_copy_path}")
+                Shutilizer.copytree_to_dst(copy_path, full_copy_path)
 
 
 if __name__ == "__main__":
