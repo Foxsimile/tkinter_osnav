@@ -950,7 +950,7 @@ class MasterWindow:
 
     def create_favorites_overlay_omni_overseer(self, listbox_width_height, default_attr, favorites_data=''):
         base_grid_info = self.create_grid_info_dict(row=2, columnspan=2, rowspan=2, sticky=tk.NW, padx=10, pady=0)
-        listbox_grid_info = self.create_grid_info_dict(column=1, sticky=tk.NW)
+        listbox_grid_info = self.create_grid_info_dict(column=1, sticky=tk.NE)
         x_scrollbar_grid_info = self.create_grid_info_dict(row=1, columnspan=2, sticky=tk.EW)
         y_scrollbar_grid_info = self.create_grid_info_dict(column=2, sticky=tk.NS)
         canvas_grid_info = self.create_grid_info_dict(sticky=tk.NW)
@@ -968,7 +968,7 @@ class MasterWindow:
         favorites_y_scrollbar = self.create_favorites_overlay_xory_scrollbar(favorites_base_frame, y_scrollbar_grid)
         favorites_listbox = self.create_favorites_overlay_listbox(favorites_base_frame, listbox_width_height, favorites_x_scrollbar, listbox_grid, favorites_data, default_attr)
         
-        canvas_width_height = (dir_listbox_width_height[0] - favorites_listbox.winfo_reqwidth() - 4, dir_listbox_width_height[1] - 4)
+        canvas_width_height = (dir_listbox_width_height[0] - favorites_listbox.winfo_reqwidth() - 2, dir_listbox_width_height[1] - 4)
         favorites_canvas = self.create_favorites_overlay_canvas(favorites_base_frame, canvas_width_height, canvas_grid)
         favorites_inner_frame = self.create_favorites_overlay_inner_frame(favorites_canvas, canvas_width_height, canvas_grid, [('pady', 2)])
         favorites_option_buttons = self.create_favorites_options_buttons(favorites_inner_frame, favorites_listbox, self.favorites_delete_buttons_command_factory_func, self.favorites_default_buttons_command_factory_func, favorites_data, default_attr)
