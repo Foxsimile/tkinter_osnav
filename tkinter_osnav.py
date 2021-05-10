@@ -87,9 +87,6 @@ class MasterWindow:
         self.load_saved_favorites_data()
         self.populate_master_overseer(self.osnav)
 
-        print(f"(H)dir:{self.dir_listbox.winfo_height()}, (H)Ofav:{self.origin_favorites_listbox.winfo_height()}, (H)Tfav:{self.target_dir_favorites_listbox.winfo_height()}, (H)Ocan:{self.origin_favorites_canvas.winfo_height()}, (H)Tcan:{self.target_dir_favorites_canvas.winfo_height()}")
-        print(f"(W)dir:{self.dir_listbox.winfo_width()}, (W)Ofav:{self.origin_favorites_listbox.winfo_width()}, (W)Tfav:{self.target_dir_favorites_listbox.winfo_width()}, (W)Ocan:{self.origin_favorites_canvas.winfo_width()}, (W)Tcan:{self.target_dir_favorites_canvas.winfo_width()}")
-
 
     def create_master(self):
         master = tk.Tk()
@@ -102,11 +99,9 @@ class MasterWindow:
 
     def set_operating_system_specifics(self, op_sys):
         default_font = tk_font.nametofont('TkDefaultFont')
-        op_sys_specs = {'font': default_font, 'fav_listbox_width_height': (0, 0), 'fav_canvas_width_height': (26, 240)}
+        op_sys_specs = {'font': default_font}
         if op_sys in ('Linux', 'OS X'):
             op_sys_specs['font'].configure(family='DejaVu Serif', size=10)
-            op_sys_specs['fav_listbox_width_height'] = (1, 0)
-            op_sys_specs['fav_canvas_width_height'] = (30, 270)
         return op_sys_specs
 
 
@@ -959,20 +954,22 @@ class MasterWindow:
         x_scrollbar_grid_info = self.create_grid_info_dict(row=1, columnspan=2, sticky=tk.EW)
         y_scrollbar_grid_info = self.create_grid_info_dict(column=2, sticky=tk.NS)
         canvas_grid_info = self.create_grid_info_dict(sticky=tk.NW)
+        dir_listbox_wh = (self.dir_listbox.winfo_reqwidth(), self.dir_listbox.winfo_reqheight())
         favorites_widgets = self.populate_favorites_overlay_omni(self.master, base_grid_info, listbox_grid_info, ((listbox_width_height[0] - 5), listbox_width_height[1]), x_scrollbar_grid_info,
-                                            y_scrollbar_grid_info, canvas_grid_info, self.op_sys_specs['fav_canvas_width_height'], default_attr, favorites_data)
+                                            y_scrollbar_grid_info, canvas_grid_info, dir_listbox_wh, default_attr, favorites_data)
         return favorites_widgets
 
 
-    def populate_favorites_overlay_omni(self, root_frame, base_frame_grid, listbox_grid, listbox_width_height, x_scrollbar_grid, y_scrollbar_grid, canvas_grid, canvas_width_height, default_attr, favorites_data):
+    def populate_favorites_overlay_omni(self, root_frame, base_frame_grid, listbox_grid, listbox_width_height, x_scrollbar_grid, y_scrollbar_grid, canvas_grid, dir_listbox_width_height, default_attr, favorites_data):
         favorites_base_frame = self.create_favorites_overlay_frame(root_frame, base_frame_grid)
         favorites_base_frame.lower()
 
         favorites_x_scrollbar = self.create_favorites_overlay_xory_scrollbar(favorites_base_frame, x_scrollbar_grid, scrollbar_orient=tk.HORIZONTAL)
         favorites_y_scrollbar = self.create_favorites_overlay_xory_scrollbar(favorites_base_frame, y_scrollbar_grid)
-        favorites_canvas = self.create_favorites_overlay_canvas(favorites_base_frame, canvas_width_height, canvas_grid)
-        listbox_width_height = (listbox_width_height[0] + self.op_sys_specs['fav_listbox_width_height'][0], listbox_width_height[1] + self.op_sys_specs['fav_listbox_width_height'][1])
         favorites_listbox = self.create_favorites_overlay_listbox(favorites_base_frame, listbox_width_height, favorites_x_scrollbar, listbox_grid, favorites_data, default_attr)
+        
+        canvas_width_height = (dir_listbox_width_height[0] - favorites_listbox.winfo_reqwidth() - 4, dir_listbox_width_height[1] - 4)
+        favorites_canvas = self.create_favorites_overlay_canvas(favorites_base_frame, canvas_width_height, canvas_grid)
         favorites_inner_frame = self.create_favorites_overlay_inner_frame(favorites_canvas, canvas_width_height, canvas_grid, [('pady', 2)])
         favorites_option_buttons = self.create_favorites_options_buttons(favorites_inner_frame, favorites_listbox, self.favorites_delete_buttons_command_factory_func, self.favorites_default_buttons_command_factory_func, favorites_data, default_attr)
         
